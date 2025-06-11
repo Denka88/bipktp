@@ -21,6 +21,7 @@ public class Record {
     private String title;
     private String homework;
     private int hours;
+    private String equipment;
     
     @ManyToOne
     @JoinColumn(name = "lessontype_id")

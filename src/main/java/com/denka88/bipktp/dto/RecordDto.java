@@ -21,6 +21,9 @@ public class RecordDto {
     
     @NotEmpty
     private int hours;
+    
+    @NotEmpty
+    private String equipment;
 
     @NotEmpty
     private LessonType lessonType;
