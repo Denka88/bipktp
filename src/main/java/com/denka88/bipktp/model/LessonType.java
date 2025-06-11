@@ -1,4 +1,4 @@
-﻿package com.denka88.bipktp.model;
+package com.denka88.bipktp.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -6,7 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Table(name = "lesson_types")
+import java.util.List;
+
+@Table(name = "lessontypes")
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
@@ -19,4 +21,7 @@ public class LessonType {
     private Long id;
     
     private String name;
+    
+    @OneToMany(mappedBy = "lessonType")
+    private List<Record> records;
 }

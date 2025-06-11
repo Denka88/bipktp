@@ -1,4 +1,4 @@
-﻿package com.denka88.bipktp.model;
+package com.denka88.bipktp.model;
 
 public enum Role {
     

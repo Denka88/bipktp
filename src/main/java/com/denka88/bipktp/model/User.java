@@ -1,4 +1,4 @@
-﻿package com.denka88.bipktp.model;
+package com.denka88.bipktp.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -30,4 +30,7 @@ public class User {
     @ElementCollection(targetClass = Role.class, fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
     private Set<Role> role;
+    
+    @ManyToMany(mappedBy = "users")
+    private Set<Discipline> disciplines;
 }

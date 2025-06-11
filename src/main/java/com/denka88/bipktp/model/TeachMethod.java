@@ -1,4 +1,4 @@
-﻿package com.denka88.bipktp.model;
+package com.denka88.bipktp.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -6,7 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Table(name = "teach_methods")
+import java.util.List;
+
+@Table(name = "teachmethods")
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
@@ -18,4 +20,7 @@ public class TeachMethod {
     private Long id;
     
     private String name;
+    
+    @ManyToMany(mappedBy = "teachMethods")
+    private List<Record> records;
 }

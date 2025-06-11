@@ -1,10 +1,12 @@
-﻿package com.denka88.bipktp.model;
+package com.denka88.bipktp.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.List;
 
 @Table(name = "specialities")
 @Entity
@@ -20,4 +22,7 @@ public class Speciality {
     
     private String name;
     private String qualification;
+    
+    @OneToMany(mappedBy = "speciality")
+    private List<CTP> ctps;
 }
