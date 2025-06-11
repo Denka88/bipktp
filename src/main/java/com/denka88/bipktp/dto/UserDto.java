@@ -1,4 +1,4 @@
-﻿package com.denka88.bipktp.dto;
+package com.denka88.bipktp.dto;
 
 import com.denka88.bipktp.model.Discipline;
 import jakarta.validation.constraints.NotEmpty;
