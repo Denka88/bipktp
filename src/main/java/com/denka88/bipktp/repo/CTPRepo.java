@@ -1,4 +1,4 @@
-﻿package com.denka88.bipktp.repo;
+package com.denka88.bipktp.repo;
 
 import com.denka88.bipktp.model.CTP;
 import org.springframework.data.jpa.repository.JpaRepository;
