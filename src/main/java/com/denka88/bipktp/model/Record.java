@@ -19,6 +19,8 @@ public class Record {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String title;
+    private String homework;
+    private int hours;
     
     @ManyToOne
     @JoinColumn(name = "lessontype_id")
@@ -30,9 +32,6 @@ public class Record {
             joinColumns = @JoinColumn(name = "record_id"),
             inverseJoinColumns = @JoinColumn(name = "teachmethod_id"))
     private List<TeachMethod> teachMethods;
-    
-    @OneToOne
-    private Homework homework;
     
     @ManyToOne
     @JoinColumn(name = "chapter_id")
