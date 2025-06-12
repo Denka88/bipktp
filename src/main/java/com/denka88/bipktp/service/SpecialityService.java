@@ -1,4 +1,4 @@
-﻿package com.denka88.bipktp.service;
+package com.denka88.bipktp.service;
 
 import com.denka88.bipktp.dto.SpecialityDto;
 import com.denka88.bipktp.model.Speciality;

@@ -1,4 +1,4 @@
-﻿package com.denka88.bipktp.impl;
+package com.denka88.bipktp.impl;
 
 import com.denka88.bipktp.dto.CommitteeDto;
 import com.denka88.bipktp.model.Committee;

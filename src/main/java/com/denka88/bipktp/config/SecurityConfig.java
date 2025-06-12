@@ -1,4 +1,4 @@
-﻿package com.denka88.bipktp.config;
+package com.denka88.bipktp.config;
 
 
 import org.springframework.context.annotation.Bean;
@@ -21,7 +21,7 @@ public class SecurityConfig {
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(requests -> requests
-                        .requestMatchers("/register", "/login")
+                        .requestMatchers("/register", "/login", "/registration")
                         .permitAll()
                         .requestMatchers("/")
                         .authenticated()

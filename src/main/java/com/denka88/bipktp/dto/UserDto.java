@@ -26,7 +26,6 @@ public class UserDto {
     @NotEmpty
     private String patronymic;
 
-    @NotEmpty
     private Set<Discipline> disciplines;
     
 }

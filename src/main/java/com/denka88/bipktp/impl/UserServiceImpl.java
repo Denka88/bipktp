@@ -1,4 +1,4 @@
-﻿package com.denka88.bipktp.impl;
+package com.denka88.bipktp.impl;
 
 import com.denka88.bipktp.dto.UserDto;
 import com.denka88.bipktp.model.User;
@@ -28,6 +28,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public Optional<User> findByLogin(String login) {
         return userRepo.findByLogin(login);
+    }
+
+    @Override
+    public boolean isLoginAvailable(String login) {
+        return !userRepo.existsByLogin(login);
     }
 
     @Override

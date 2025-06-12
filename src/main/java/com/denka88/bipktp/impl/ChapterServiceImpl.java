@@ -1,10 +1,9 @@
-﻿package com.denka88.bipktp.impl;
+package com.denka88.bipktp.impl;
 
 import com.denka88.bipktp.dto.ChapterDto;
 import com.denka88.bipktp.model.Chapter;
 import com.denka88.bipktp.repo.ChapterRepo;
 import com.denka88.bipktp.service.ChapterService;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

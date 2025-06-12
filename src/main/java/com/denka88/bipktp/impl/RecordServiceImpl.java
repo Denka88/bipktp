@@ -1,4 +1,4 @@
-﻿package com.denka88.bipktp.impl;
+package com.denka88.bipktp.impl;
 
 import com.denka88.bipktp.dto.RecordDto;
 import com.denka88.bipktp.repo.RecordRepo;
