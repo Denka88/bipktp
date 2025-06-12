@@ -6,6 +6,7 @@ import com.denka88.bipktp.model.Role;
 import com.denka88.bipktp.repo.UserRepo;
 import com.denka88.bipktp.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -17,6 +18,7 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService {
     
     private final UserRepo userRepo;
+    private final BCryptPasswordEncoder encoder;
     
     @Override
     public List<User> findAll() {
@@ -37,7 +39,7 @@ public class UserServiceImpl implements UserService {
     public User save(UserDto userDto) {
         User user = new User();
         user.setLogin(userDto.getLogin());
-        user.setPassword(userDto.getPassword());
+        user.setPassword(encoder.encode(userDto.getPassword()));
         user.setSurname(userDto.getSurname());
         user.setName(userDto.getName());
         user.setPatronymic(userDto.getPatronymic());
@@ -60,7 +62,7 @@ public class UserServiceImpl implements UserService {
             throw new IllegalArgumentException("Пользователь не найден");
         }
         updatedUser.setLogin(user.getLogin());
-        updatedUser.setPassword(user.getPassword());//Добавить шифровку пароля!!! БЕЗ НЕГО НЕ ЗАРАБОТАЕТ
+        updatedUser.setPassword(encoder.encode(user.getPassword()));
         updatedUser.setSurname(user.getSurname());
         updatedUser.setName(user.getName());
         updatedUser.setPatronymic(user.getPatronymic());
