@@ -12,9 +12,9 @@
     <hr>
     <form th:action="@{/registration}" th:object="${user}" method="post">
 
-        <label for="username" class="form-label">Логин: </label>
-        <input type="text" class="form-control" id="username" th:field="*{login}">
-        <span th:if="${#fields.hasErrors('username')}" th:errors="*{login}" class="text-danger">Ошибка логина</span>
+        <label for="login" class="form-label">Логин: </label>
+        <input type="text" class="form-control" id="login" th:field="*{login}">
+        <span th:if="${#fields.hasErrors('login')}" th:errors="*{login}" class="text-danger">Ошибка логина</span>
         <br>
 
         <label for="surname" class="form-label">Фамилия: </label>
@@ -27,7 +27,7 @@
         <span th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="text-danger">Ошибка имени</span>
         <br>        
         
-        <label for="patronymic" class="form-label">Фамилия: </label>
+        <label for="patronymic" class="form-label">Отчество: </label>
         <input type="text" class="form-control" id="patronymic" th:field="*{patronymic}">
         <span th:if="${#fields.hasErrors('patronymic')}" th:errors="*{patronymic}" class="text-danger">Ошибка отчества</span>
         <br>

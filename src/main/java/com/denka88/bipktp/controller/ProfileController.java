@@ -20,7 +20,7 @@ public class ProfileController {
     private final UserService userService;
     
     @GetMapping("/register")
-    public String register() {
+    public String register(@ModelAttribute("user") UserDto userDto) {
         return "auth/register";
     }
     
@@ -32,7 +32,7 @@ public class ProfileController {
         
         if (!userService.isLoginAvailable(userDto.getLogin())) {
             System.out.println("Логин занят!");
-            bindingResult.rejectValue("username", "error.username", "Имя пользователя уже занято!");
+            bindingResult.rejectValue("login", "error.login", "Логин уже занят!");
             return "auth/register";
         }
         userService.save(userDto);
