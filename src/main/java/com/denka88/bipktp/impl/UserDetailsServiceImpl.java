@@ -23,6 +23,10 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
         List<SimpleGrantedAuthority> authorities = user.getRole().stream().map(
                 role -> new SimpleGrantedAuthority("ROLE_" + role.name())).toList();
+
+        System.out.println("Found user: " + user.getLogin());
+        System.out.println("Password: " + user.getPassword());
+        System.out.println("Roles: " + user.getRole());
         
         return new org.springframework.security.core.userdetails.User(user.getLogin(), user.getPassword(), authorities);
     }
