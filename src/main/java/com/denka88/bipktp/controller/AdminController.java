@@ -30,23 +30,4 @@ public class AdminController {
         model.addAttribute("committees", committeeService.findAll());
         return "admin/entities/committees";
     }
-    
-    @PostMapping("/entities/committees/save")
-    public String committeesSave(@ModelAttribute("newCommittee") CommitteeDto committeeDto) {
-        committeeService.save(committeeDto);
-        return "redirect:/admin/entities/committees";
-    }
-
-    @PostMapping("/entities/committees/update")
-    public String updateCommittee(@ModelAttribute("updateCommittee") Committee committee, @RequestParam Long id) {
-        committee.setId(id);
-        committeeService.update(committee);
-        return "redirect:/admin/entities/committees";
-    }
-    
-    @PostMapping("/entities/committees/delete")
-    public String deleteCommittee(@RequestParam Long id) {
-        committeeService.deleteById(id);
-        return "redirect:/admin/entities/committees";
-    }
 }
