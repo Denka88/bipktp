@@ -44,6 +44,23 @@
             right: 20px;
             z-index: 1100;
         }
+        .context-menu {
+            position: absolute;
+            z-index: 1000;
+            display: none;
+            background-color: white;
+            border: 1px solid #ddd;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            border-radius: 4px;
+            padding: 5px 0;
+        }
+        .context-menu-item {
+            padding: 5px 15px;
+            cursor: pointer;
+        }
+        .context-menu-item:hover {
+            background-color: #f8f9fa;
+        }
     </style>
 </head>
 <body>
@@ -56,6 +73,31 @@
                     Комиссия сохранена
                 </div>
                 <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
+    <div id="contextMenu" class="context-menu">
+        <div class="context-menu-item" id="deleteItem" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal">Удалить</div>
+    </div>
+
+    <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Подтверждение удаления</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Вы уверены, что хотите удалить эту запись?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <form method="post" th:action="@{/admin/entities/committees/delete}">
+                        <input type="hidden" name="id" id="deleteId" value="">
+                        <button type="submit" class="btn btn-danger" data-bs-dismiss="modal" id="confirmDelete">Удалить</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
@@ -112,10 +154,19 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const tableRows = document.querySelectorAll('tbody tr');
+        
         const form = document.getElementById('entityForm');
         const entityId = document.getElementById('entityId');
         const nameInput = document.getElementById('name');
+        
         const successToast = new bootstrap.Toast(document.getElementById('successToast'));
+
+        const contextMenu = document.getElementById('contextMenu');
+        const deleteItem = document.getElementById('deleteItem');
+        const confirmDeleteModal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
+        const confirmDeleteBtn = document.getElementById('confirmDelete');
+
+        let selectedRowId = null;
 
         function updateFormAction(id) {
             if (id) {
@@ -145,6 +196,34 @@
 
                 updateFormAction(id);
             });
+        });
+
+        tableRows.forEach(row => {
+            row.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+
+                selectedRowId = this.getAttribute('data-id');
+
+                contextMenu.style.display = 'block';
+                contextMenu.style.left = `${e.pageX}px`;
+                contextMenu.style.top = `${e.pageY}px`;
+
+                return false;
+            });
+        });
+
+        document.addEventListener('click', function() {
+            contextMenu.style.display = 'none';
+        });
+
+        deleteItem.addEventListener('click', function() {
+            
+            document.getElementById('deleteId').value = selectedRowId;
+            
+            const url = new URL(window.location.href);
+            url.searchParams.set('id', selectedRowId);
+            window.history.pushState({}, '', url);
+
         });
 
         form.addEventListener('reset', function() {

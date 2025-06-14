@@ -43,4 +43,10 @@ public class AdminController {
         committeeService.update(committee);
         return "redirect:/admin/entities/committees";
     }
+    
+    @PostMapping("/entities/committees/delete")
+    public String deleteCommittee(@RequestParam Long id) {
+        committeeService.deleteById(id);
+        return "redirect:/admin/entities/committees";
+    }
 }
