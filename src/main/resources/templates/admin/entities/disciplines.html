@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Управление комиссиями</title>
+    <title>Управление дисциплинами</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <style>
@@ -70,7 +70,7 @@
         <div id="successToast" class="toast align-items-center text-white bg-success" role="alert" aria-live="assertive" aria-atomic="true">
             <div class="d-flex">
                 <div class="toast-body">
-                    Комиссия сохранена
+                    Дисциплина сохранена
                 </div>
                 <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
             </div>
@@ -93,7 +93,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-                    <form method="post" th:action="@{/admin/entities/committees/delete}">
+                    <form method="post" th:action="@{/admin/entities/disciplines/delete}">
                         <input type="hidden" name="id" id="deleteId" value="">
                         <button type="submit" class="btn btn-danger" data-bs-dismiss="modal" id="confirmDelete">Удалить</button>
                     </form>
@@ -101,9 +101,9 @@
             </div>
         </div>
     </div>
-    
+
     <div class="header">
-        <h2>Управление комиссиями</h2>
+        <h2>Управление дисциплинами</h2>
     </div>
 
     <div class="row">
@@ -117,9 +117,9 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:each="committee : ${committees}" th:data-id="${committee.id}">
-                        <td th:text="${committee.id}"></td>
-                        <td th:text="${committee.name}"></td>
+                    <tr th:each="discipline : ${disciplines}" th:data-id="${discipline.id}">
+                        <td th:text="${discipline.id}"></td>
+                        <td th:text="${discipline.name}"></td>
                     </tr>
                     </tbody>
                 </table>
@@ -128,7 +128,7 @@
 
         <div class="col-md-5">
             <div class="form-container">
-                <form id="entityForm" th:object="${newCommittee}" th:action="@{/admin/entities/committees/save}" method="post">
+                <form id="entityForm" th:object="${newDiscipline}" th:action="@{/admin/entities/disciplines/save}" method="post">
                     <input type="hidden" id="entityId" name="id">
 
                     <div class="form-group">
@@ -154,11 +154,11 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const tableRows = document.querySelectorAll('tbody tr');
-        
+
         const form = document.getElementById('entityForm');
         const entityId = document.getElementById('entityId');
         const nameInput = document.getElementById('name');
-        
+
         const successToast = new bootstrap.Toast(document.getElementById('successToast'));
 
         const contextMenu = document.getElementById('contextMenu');
@@ -168,11 +168,11 @@
 
         function updateFormAction(id) {
             if (id) {
-                form.action = '/admin/entities/committees/update';
-                form.object = 'updateCommittee';
+                form.action = '/admin/entities/disciplines/update';
+                form.object = 'updateDiscipline';
             } else {
-                form.action = '/admin/entities/committees/save';
-                form.object = 'newCommittee';
+                form.action = '/admin/entities/disciplines/save';
+                form.object = 'newDiscipline';
             }
         }
 
@@ -215,9 +215,9 @@
         });
 
         deleteItem.addEventListener('click', function() {
-            
+
             document.getElementById('deleteId').value = selectedRowId;
-            
+
             const url = new URL(window.location.href);
             url.searchParams.set('id', selectedRowId);
             window.history.pushState({}, '', url);
