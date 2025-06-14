@@ -1,15 +1,9 @@
 package com.denka88.bipktp.controller;
 
-import com.denka88.bipktp.dto.CommitteeDto;
-import com.denka88.bipktp.dto.DisciplineDto;
-import com.denka88.bipktp.dto.PeriodDto;
-import com.denka88.bipktp.dto.SpecialityDto;
+import com.denka88.bipktp.dto.*;
 import com.denka88.bipktp.model.Committee;
 import com.denka88.bipktp.model.Discipline;
-import com.denka88.bipktp.service.CommitteeService;
-import com.denka88.bipktp.service.DisciplineService;
-import com.denka88.bipktp.service.PeriodService;
-import com.denka88.bipktp.service.SpecialityService;
+import com.denka88.bipktp.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -24,6 +18,7 @@ public class AdminController {
     private final DisciplineService disciplineService;
     private final PeriodService periodService;
     private final SpecialityService specialityService;
+    private final TeachMethodService teachMethodService;
     
     @ModelAttribute("newCommittee")
     public CommitteeDto newCommittee() {
@@ -43,6 +38,11 @@ public class AdminController {
     @ModelAttribute("newSpeciality")
     public SpecialityDto newSpeciality() {
         return new SpecialityDto();
+    }
+    
+    @ModelAttribute("newTeachMethod")
+    public TeachMethodDto newTeachMethod() {
+        return new TeachMethodDto();
     }
 
     @GetMapping("/entities")
@@ -72,6 +72,12 @@ public class AdminController {
     public String specialities(Model model) {
         model.addAttribute("specialities", specialityService.findAll());
         return "admin/entities/specialities";
+    }
+    
+    @GetMapping("/entities/teachMethods")
+    public String teachMethods(Model model) {
+        model.addAttribute("teachMethods", teachMethodService.findAll());
+        return "admin/entities/teachMethods";
     }
     
 }
