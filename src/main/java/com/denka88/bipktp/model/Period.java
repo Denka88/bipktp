@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDate;
 import java.time.Year;
 import java.util.List;
 
@@ -22,7 +21,8 @@ public class Period {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    private Year year;
+    private Year start;
+    private Year end;
     
     @OneToMany(mappedBy = "period")
     private List<CTP> ctps;

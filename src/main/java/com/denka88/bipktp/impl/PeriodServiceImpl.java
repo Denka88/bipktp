@@ -29,7 +29,8 @@ public class PeriodServiceImpl implements PeriodService {
     @Override
     public Period save(PeriodDto periodDto) {
         Period period = new Period();
-        period.setYear(periodDto.getYear());
+        period.setStart(periodDto.getStart());
+        period.setEnd(periodDto.getEnd());
         periodRepo.save(period);
         
         return period;
@@ -46,6 +47,8 @@ public class PeriodServiceImpl implements PeriodService {
         if (updatedPeriod == null) {
             throw new IllegalArgumentException("Период не найден");
         }
-        updatedPeriod.setYear(period.getYear());
+        updatedPeriod.setStart(period.getStart());
+        updatedPeriod.setEnd(period.getEnd());
+        periodRepo.save(updatedPeriod);
     }
 }

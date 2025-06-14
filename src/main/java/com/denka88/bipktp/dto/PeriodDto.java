@@ -11,6 +11,8 @@ import java.time.Year;
 public class PeriodDto {
     
     @NotEmpty
-    private Year year;
+    private Year start;
+    
+    private Year end;
     
 }
