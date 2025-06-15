@@ -101,6 +101,7 @@ public class AdminController {
     @GetMapping("/entities/users")
     public String users(Model model) {
         model.addAttribute("users", userService.findAll());
+        model.addAttribute("disciplines", disciplineService.findAll());
         return "admin/entities/users";
     }
     

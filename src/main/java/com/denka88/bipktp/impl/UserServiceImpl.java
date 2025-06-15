@@ -49,10 +49,8 @@ public class UserServiceImpl implements UserService {
         
         if(userDto.isAdmin()) {
             user.setRole(Set.of(Role.ADMIN, Role.TEACHER));
-            System.out.println("Родился админом");
         }else {
             user.setRole(Collections.singleton(Role.TEACHER));
-            System.out.println("не Родился админом");
         }
         
         user.setDisciplines(userDto.getDisciplines());
@@ -82,10 +80,8 @@ public class UserServiceImpl implements UserService {
         updatedUser.setDisciplines(user.getDisciplines());
         if(isAdmin) {
             updatedUser.setRole(new HashSet<>(Set.of(Role.ADMIN, Role.TEACHER)));
-            System.out.println("стал админом");
         }else {
             updatedUser.setRole(new HashSet<>(Collections.singleton(Role.TEACHER)));
-            System.out.println("не стал админом");
         }
         
         userRepo.save(updatedUser);
