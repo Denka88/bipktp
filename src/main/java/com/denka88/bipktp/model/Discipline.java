@@ -25,11 +25,7 @@ public class Discipline {
     
     @OneToMany(mappedBy = "discipline")
     private List<CTP> ctps;
-    
-    @ManyToMany
-    @JoinTable(
-            name = "discipline_user",
-            joinColumns = @JoinColumn(name = "discipline_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id"))
+
+    @ManyToMany(mappedBy = "disciplines")
     private Set<User> users;
 }

@@ -49,4 +49,9 @@ public class DisciplineServiceImpl implements DisciplineService {
         updatedDiscipline.setName(discipline.getName());
         disciplineRepo.save(updatedDiscipline);
     }
+
+    @Override
+    public List<Discipline> findAllById(List<Long> ids) {
+        return disciplineRepo.findAllById(ids);
+    }
 }

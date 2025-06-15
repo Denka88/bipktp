@@ -162,8 +162,8 @@
                         <label for="password" class="form-label">Пароль</label>
                         <input type="password" class="form-control" th:field="*{password}" id="password" name="password">
                         
-                        <label for="disciplines" class="form-label">Дисциплины</label>
-                        <select class="selectpicker" multiple aria-label="Выбор дисциплин" data-live-search="true" data-style="btn-light" data-width="100%" id="disciplines" name="disciplines">
+                        <label for="disciplineIds" class="form-label">Дисциплины</label>
+                        <select class="selectpicker" multiple aria-label="Выбор дисциплин" data-live-search="true" data-style="btn-light" data-width="100%" id="disciplineIds" name="disciplineIds">
                             <option th:each="discipline : ${disciplines}" th:value="${discipline.id}" th:text="${discipline.name}"></option>
                         </select>
                         
@@ -201,13 +201,13 @@
 
         const form = document.getElementById('entityForm');
         const entityId = document.getElementById('entityId');
-        
+
         const surnameInput = document.getElementById('surname');
         const nameInput = document.getElementById('name');
         const patronymicInput = document.getElementById('patronymic');
         const loginInput = document.getElementById('login');
         const isAdminCheckbox = document.getElementById('isAdmin');
-        const disciplinesSelect = $('#disciplines');
+        const disciplineSelect = $('#disciplineIds');
 
         const successToast = new bootstrap.Toast(document.getElementById('successToast'));
 
@@ -215,6 +215,30 @@
         const deleteItem = document.getElementById('deleteItem');
 
         let selectedRowId = null;
+
+        // Инициализация multiselect
+        $('.selectpicker').selectpicker();
+
+        // Обработчик изменения выбранных дисциплин
+        disciplineSelect.on('changed.bs.select', function(e, clickedIndex, isSelected, previousValue) {
+            updateUrlWithDisciplines();
+        });
+
+        // Функция для обновления URL с выбранными дисциплинами
+        function updateUrlWithDisciplines() {
+            const selectedDisciplines = disciplineSelect.val() || [];
+            const url = new URL(window.location.href);
+
+            // Удаляем все существующие параметры discId
+            url.searchParams.delete('discId');
+
+            // Добавляем новые параметры discId
+            selectedDisciplines.forEach(id => {
+                url.searchParams.append('discId', id);
+            });
+
+            window.history.pushState({}, '', url);
+        }
 
         isAdminCheckbox.addEventListener('change', function () {
             const url = new URL(window.location.href);
@@ -279,13 +303,11 @@
         });
 
         deleteItem.addEventListener('click', function() {
-
             document.getElementById('deleteId').value = selectedRowId;
 
             const url = new URL(window.location.href);
             url.searchParams.set('id', selectedRowId);
             window.history.pushState({}, '', url);
-
         });
 
         form.addEventListener('reset', function() {
@@ -294,29 +316,55 @@
             const url = new URL(window.location.href);
             url.searchParams.delete('id');
             url.searchParams.delete('isAdmin');
+            url.searchParams.delete('discId');
             window.history.pushState({}, '', url);
 
             entityId.value = '';
 
-            disciplinesSelect.selectpicker('val', '');
-            disciplinesSelect.selectpicker('refresh');
+            disciplineSelect.selectpicker('val', '');
+            disciplineSelect.selectpicker('refresh');
 
             updateFormAction(null);
         });
 
-        const urlParams = new URLSearchParams(window.location.search);
-        const idFromUrl = urlParams.get('id');
-        const isAdminFromUrl = urlParams.get('isAdmin') === 'true';
-        if (idFromUrl) {
-            const rowToSelect = document.querySelector(`tr[data-id="${idFromUrl}"]`);
-            if (rowToSelect) {
-                rowToSelect.click();
-                isAdminCheckbox.checked = isAdminFromUrl;
+        // Инициализация формы из URL параметров
+        function initializeFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const idFromUrl = urlParams.get('id');
+            const isAdminFromUrl = urlParams.get('isAdmin') === 'true';
+
+            // Получаем все discId из URL
+            const discIdsFromUrl = urlParams.getAll('discId');
+
+            if (idFromUrl) {
+                const rowToSelect = document.querySelector(`tr[data-id="${idFromUrl}"]`);
+                if (rowToSelect) {
+                    rowToSelect.click();
+                    isAdminCheckbox.checked = isAdminFromUrl;
+                }
+            }
+
+            // Устанавливаем выбранные дисциплины из URL
+            if (discIdsFromUrl.length > 0) {
+                disciplineSelect.selectpicker('val', discIdsFromUrl);
+                disciplineSelect.selectpicker('refresh');
             }
         }
 
+        // Инициализируем форму при загрузке
+        initializeFromUrl();
+
         form.addEventListener('submit', function(e) {
             e.preventDefault();
+
+            const formData = new FormData(form);
+
+            const selectedDisciplines = $('#disciplineIds').val();
+            if (selectedDisciplines) {
+                selectedDisciplines.forEach(id => {
+                    formData.append('disciplineIds', id);
+                });
+            }
 
             fetch(form.action, {
                 method: form.method,

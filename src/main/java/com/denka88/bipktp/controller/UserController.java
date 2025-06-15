@@ -28,7 +28,8 @@ public class UserController {
     }
     
     @PostMapping("/update")
-    public String update(@ModelAttribute("updateUser") User user, @RequestParam Long id, @RequestParam(value = "isAdmin", defaultValue = "false") boolean isAdmin) {
+    public String update(@ModelAttribute("updateUser") User user, @RequestParam Long id, 
+                         @RequestParam(value = "isAdmin", defaultValue = "false") boolean isAdmin) {
         user.setId(id);
         userService.update(user, isAdmin);
         return "redirect:/admin/entities/users";

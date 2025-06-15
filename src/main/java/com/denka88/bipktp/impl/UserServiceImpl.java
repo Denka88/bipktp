@@ -1,9 +1,11 @@
 package com.denka88.bipktp.impl;
 
 import com.denka88.bipktp.dto.UserDto;
+import com.denka88.bipktp.model.Discipline;
 import com.denka88.bipktp.model.User;
 import com.denka88.bipktp.model.Role;
 import com.denka88.bipktp.repo.UserRepo;
+import com.denka88.bipktp.service.DisciplineService;
 import com.denka88.bipktp.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -17,6 +19,7 @@ public class UserServiceImpl implements UserService {
     
     private final UserRepo userRepo;
     private final BCryptPasswordEncoder encoder;
+    private final DisciplineService disciplineService;
     
     @Override
     public List<User> findAll() {
@@ -52,9 +55,12 @@ public class UserServiceImpl implements UserService {
         }else {
             user.setRole(Collections.singleton(Role.TEACHER));
         }
-        
-        user.setDisciplines(userDto.getDisciplines());
+
+        List<Discipline> disciplines = disciplineService.findAllById(userDto.getDisciplineIds());
+     
+        user.setDisciplines(disciplines);
         userRepo.save(user);
+
         
         return user;
     }
@@ -77,7 +83,14 @@ public class UserServiceImpl implements UserService {
         updatedUser.setSurname(user.getSurname());
         updatedUser.setName(user.getName());
         updatedUser.setPatronymic(user.getPatronymic());
+        
+        if (user.getDisciplines() != null && !user.getDisciplines().isEmpty()) {
+            updatedUser.setDisciplines(user.getDisciplines());
+        }
+        
         updatedUser.setDisciplines(user.getDisciplines());
+        
+        
         if(isAdmin) {
             updatedUser.setRole(new HashSet<>(Set.of(Role.ADMIN, Role.TEACHER)));
         }else {

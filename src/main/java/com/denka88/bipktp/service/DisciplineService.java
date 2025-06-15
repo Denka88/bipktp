@@ -13,4 +13,6 @@ public interface DisciplineService {
     Discipline save(DisciplineDto disciplineDto);
     void deleteById(Long id);
     void update(Discipline discipline);
+
+    List<Discipline> findAllById(List<Long> ids);
 }

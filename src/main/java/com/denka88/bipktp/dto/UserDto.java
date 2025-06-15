@@ -27,7 +27,7 @@ public class UserDto {
     @NotEmpty
     private String patronymic;
 
-    private Set<Discipline> disciplines;
+    private List<Long> disciplineIds;
     
     private boolean isAdmin;
 }
