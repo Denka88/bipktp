@@ -12,7 +12,7 @@ public interface UserService {
     Optional<User> findById(Long id);
     User save(UserDto userDto);
     void deleteById(Long id);
-    void update(User user);
+    void update(User user, boolean isAdmin);
     
     Optional<User> findByLogin(String login);
     boolean isLoginAvailable(String login);

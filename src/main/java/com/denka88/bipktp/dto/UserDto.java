@@ -28,4 +28,5 @@ public class UserDto {
 
     private Set<Discipline> disciplines;
     
+    private boolean isAdmin;
 }

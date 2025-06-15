@@ -20,6 +20,7 @@ public class AdminController {
     private final SpecialityService specialityService;
     private final TeachMethodService teachMethodService;
     private final LessonTypeService lessonTypeService;
+    private final UserService userService;
     
     @ModelAttribute("newCommittee")
     public CommitteeDto newCommittee() {
@@ -49,6 +50,11 @@ public class AdminController {
     @ModelAttribute("newLessonType")
     public LessonTypeDto newLessonType() {
         return new LessonTypeDto();
+    }
+    
+    @ModelAttribute("newUser")
+    public UserDto newUser() {
+        return new UserDto();
     }
 
     @GetMapping("/entities")
@@ -90,6 +96,12 @@ public class AdminController {
     public String lessonTypes(Model model) {
         model.addAttribute("lessonTypes", lessonTypeService.findAll());
         return "admin/entities/lessonTypes";
+    }
+    
+    @GetMapping("/entities/users")
+    public String users(Model model) {
+        model.addAttribute("users", userService.findAll());
+        return "admin/entities/users";
     }
     
 }
