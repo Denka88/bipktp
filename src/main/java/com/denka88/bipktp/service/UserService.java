@@ -12,8 +12,10 @@ public interface UserService {
     Optional<User> findById(Long id);
     User save(UserDto userDto);
     void deleteById(Long id);
-    void update(User user, boolean isAdmin);
+    void update(User user, boolean isAdmin, List<Long> disciplineIds);
     
     Optional<User> findByLogin(String login);
     boolean isLoginAvailable(String login);
+
+    List<User> findAllWithDisciplines();
 }

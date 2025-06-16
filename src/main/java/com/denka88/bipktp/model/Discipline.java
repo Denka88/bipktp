@@ -26,6 +26,6 @@ public class Discipline {
     @OneToMany(mappedBy = "discipline")
     private List<CTP> ctps;
 
-    @ManyToMany(mappedBy = "disciplines")
+    @ManyToMany(mappedBy = "disciplines", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private Set<User> users;
 }

@@ -37,6 +37,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public List<User> findAllWithDisciplines() {
+        return userRepo.findAllWithDisciplines();
+    }
+
+    @Override
     public Optional<User> findById(Long id) {
         return userRepo.findById(id);
     }
@@ -71,7 +76,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void update(User user, boolean isAdmin) {
+    public void update(User user, boolean isAdmin, List<Long> disciplineIds) {
         User updatedUser = userRepo.findById(user.getId()).orElse(null);
         if (updatedUser == null) {
             throw new IllegalArgumentException("Пользователь не найден");
@@ -84,11 +89,12 @@ public class UserServiceImpl implements UserService {
         updatedUser.setName(user.getName());
         updatedUser.setPatronymic(user.getPatronymic());
         
-        if (user.getDisciplines() != null && !user.getDisciplines().isEmpty()) {
-            updatedUser.setDisciplines(user.getDisciplines());
-        }
+        System.out.println("UPDATE SERVICE: ");
+        System.out.println(disciplineIds);
+        updatedUser.setDisciplines(disciplineService.findAllById(disciplineIds));
+
+        System.out.println(updatedUser.getDisciplines());
         
-        updatedUser.setDisciplines(user.getDisciplines());
         
         
         if(isAdmin) {
