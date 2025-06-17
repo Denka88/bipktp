@@ -1,0 +1,142 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>КТП - Календарно-тематические планы</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .cards-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+            min-height: 800px;
+        }
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            padding: 20px;
+            transition: transform 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .card h3 {
+            margin-top: 0;
+            color: #2c3e50;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        .card p {
+            margin: 8px 0;
+            color: #555;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        .pagination a {
+            color: #333;
+            padding: 8px 16px;
+            text-decoration: none;
+            border: 1px solid #ddd;
+            margin: 0 4px;
+            border-radius: 4px;
+        }
+        .pagination a.active {
+            background-color: #386ffd;
+            color: white;
+            border: 1px solid #0043ff;
+        }
+        .pagination a:hover:not(.active) {
+            background-color: #ddd;
+        }
+        .card.empty {
+            background-color: transparent;
+            border: 2px dashed #ccc;
+            box-shadow: none;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Календарно-тематическое планирование</h1>
+
+    <div class="cards-container">
+        <div class="card">
+            <h3>КТП по математике</h3>
+            <p>Период: 2022 - 2023</p>
+            <p>Комиссия: Естественно-научных дисциплин</p>
+            <p>Специальность: Прикладная информатика</p>
+            <p>Дисциплина: Математика</p>
+        </div>
+
+        <div class="card">
+            <h3>КТП по программированию</h3>
+            <p>Период: 2022 - 2023</p>
+            <p>Комиссия: Информационных технологий</p>
+            <p>Специальность: Программное обеспечение</p>
+            <p>Дисциплина: Основы программирования</p>
+        </div>
+
+        <div class="card">
+            <h3>КТП по физике</h3>
+            <p>Период: 2021 - 2022</p>
+            <p>Комиссия: Естественно-научных дисциплин</p>
+            <p>Специальность: Техническая физика</p>
+            <p>Дисциплина: Общая физика</p>
+        </div>
+
+        <div class="card">
+            <h3>КТП по истории</h3>
+            <p>Период: 2022 - 2023</p>
+            <p>Комиссия: Гуманитарных дисциплин</p>
+            <p>Специальность: Международные отношения</p>
+            <p>Дисциплина: История мировых цивилизаций</p>
+        </div>
+
+        <!-- Карточка 5 -->
+        <div class="card">
+            <h3>КТП по химии</h3>
+            <p>Период: 2021 - 2022</p>
+            <p>Комиссия: Естественно-научных дисциплин</p>
+            <p>Специальность: Химическая технология</p>
+            <p>Дисциплина: Органическая химия</p>
+        </div>
+
+        <div class="card empty"></div>
+        <div class="card empty"></div>
+        <div class="card empty"></div>
+        <div class="card empty"></div>
+    </div>
+
+    <div class="pagination">
+        <a href="#">&laquo;</a>
+        <a href="#" class="active">1</a>
+        <a href="#">2</a>
+        <a href="#">3</a>
+        <a href="#">4</a>
+        <a href="#">5</a>
+        <a href="#">&raquo;</a>
+    </div>
+</div>
+</body>
+</html>

@@ -15,16 +15,12 @@ public class CTPDto {
     @NotEmpty
     private String name;
     
-    @NotEmpty
     private Period period;
     
-    @NotEmpty
     private Committee committee;
     
-    @NotEmpty
     private Speciality speciality;
     
-    @NotEmpty
     private Discipline discipline;
     
 }

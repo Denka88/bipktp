@@ -29,11 +29,22 @@ public class CTPServiceImpl implements CTPService {
     @Override
     public CTP save(CTPDto ctpDto) {
         CTP ctp = new CTP();
+        System.out.println("Создал");
         ctp.setName(ctpDto.getName());
+        System.out.println("имя" + ctp.getName());
+        System.out.println("имя" + ctpDto.getName());
         ctp.setCommittee(ctpDto.getCommittee());
+        System.out.println("Комиссия" + ctp.getCommittee());
+        System.out.println("Комиссия" + ctpDto.getCommittee());
         ctp.setPeriod(ctpDto.getPeriod());
+        System.out.println("ПЕриод" + ctp.getPeriod());
+        System.out.println("ПЕриод" + ctpDto.getPeriod());
         ctp.setSpeciality(ctpDto.getSpeciality());
+        System.out.println("Cпец" + ctp.getSpeciality());
+        System.out.println("Cпец" + ctpDto.getSpeciality());
         ctp.setDiscipline(ctpDto.getDiscipline());
+        System.out.println("дисц" + ctp.getDiscipline());
+        System.out.println("дисц" + ctpDto.getDiscipline());
         
         ctpRepo.save(ctp);
         

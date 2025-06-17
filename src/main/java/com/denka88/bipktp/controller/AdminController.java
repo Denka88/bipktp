@@ -21,6 +21,7 @@ public class AdminController {
     private final TeachMethodService teachMethodService;
     private final LessonTypeService lessonTypeService;
     private final UserService userService;
+    private final CTPService ctpService;
     
     @ModelAttribute("newCommittee")
     public CommitteeDto newCommittee() {
@@ -103,6 +104,12 @@ public class AdminController {
         model.addAttribute("users", userService.findAllWithDisciplines());
         model.addAttribute("disciplines", disciplineService.findAll());
         return "admin/entities/users";
+    }
+    
+    @GetMapping("/entities/ctps")
+    public String ctps(Model model) {
+        model.addAttribute("ctps", ctpService.findAll());
+        return "admin/entities/ctps/ctps";
     }
     
 }

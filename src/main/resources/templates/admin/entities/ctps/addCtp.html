@@ -1,0 +1,82 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Добавить КТП</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        .form-container {
+            width: 100%;
+            max-width: 500px;
+            padding: 20px;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            background-color: white;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-header {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #0d6efd;
+        }
+    </style>
+</head>
+<body>
+
+<div class="form-container">
+    <h3 class="form-header">Добавление календарно-тематического плана</h3>
+    
+    <form id="entityForm" th:object="${newCTP}" th:action="@{/admin/entities/ctps/save}" method="post">
+        <input type="hidden" id="entityId" name="id">
+
+        <div class="form-group">
+            <label for="name" class="form-label">Название</label>
+            <input type="text" class="form-control" id="name" th:field="*{name}" name="name" required>
+
+            <label for="period" class="form-label">Период</label>
+            <select id="period" class="form-control" th:field="*{period}">
+                <option th:each="period : ${periods}" th:value="${period.id}" th:text="${period.start + ' - ' + period.end}"></option>
+            </select>
+
+            <label for="committee" class="form-label">Комиссия</label>
+            <select id="committee" class="form-control" th:field="*{committee}">
+                <option th:each="committee : ${committees}" th:value="${committee.id}" th:text="${committee.name}"></option>
+            </select>
+
+            <label for="speciality" class="form-label">Специальность</label>
+            <select id="speciality" class="form-control" th:field="*{speciality}">
+                <option th:each="speciality : ${specialities}" th:value="${speciality.id}" th:if="${!speciality.getQualification().isEmpty()}" th:text="${speciality.name + ' (' + speciality.qualification + ')'}"></option>
+                <option th:each="speciality : ${specialities}" th:value="${speciality.id}" th:if="${speciality.getQualification().isEmpty()}" th:text="${speciality.name}"></option>
+            </select>
+
+            <label for="discipline" class="form-label">Дисциплина</label>
+            <select id="discipline" class="form-control" th:field="*{discipline}">
+                <option th:each="discipline : ${disciplines}" th:value="${discipline.id}" th:text="${discipline.name}"></option>
+            </select>
+        </div>
+
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+            <button type="reset" class="btn btn-secondary me-md-2">
+                <i class="bi bi-arrow-counterclockwise"></i> Сбросить
+            </button>
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-save"></i> Сохранить
+            </button>
+        </div>
+    </form>
+</div>
+
+</body>
+</html>
