@@ -38,7 +38,7 @@
 <div class="form-container">
     <h3 class="form-header">Добавление календарно-тематического плана</h3>
     
-    <form id="entityForm" th:object="${newCTP}" th:action="@{/admin/entities/ctps/save}" method="post">
+    <form id="entityForm" th:object="${newCTP}" th:action="@{/ctps/save}" method="post">
         <input type="hidden" id="entityId" name="id">
 
         <div class="form-group">

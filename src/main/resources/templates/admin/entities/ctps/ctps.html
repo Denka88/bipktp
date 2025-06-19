@@ -92,10 +92,10 @@
 <div class="container">
     <h1>Календарно-тематическое планирование</h1>
 
-    <a href="/admin/entities/ctps/addCtp" class="add-ctp-btn">Добавить КТП</a>
+    <a href="/ctps/addCtp" class="add-ctp-btn">Добавить КТП</a>
 
     <div class="cards-container">
-        <div class="card" th:each="ctp : ${ctps}">
+        <div class="card" th:each="ctp : ${ctps}" style="cursor: pointer">
             <h3 th:text="${ctp.name}"></h3>
             <p th:text="${ 'Период: ' + ctp.period.start + ' - ' + ctp.period.end}"></p>
             <p th:text="${ 'Комиссия: ' + ctp.committee.name}"></p>
@@ -106,13 +106,13 @@
     </div>
 
     <div class="pagination" th:if="${ctpPage.totalPages > 0}">
-        <a th:if="${ctpPage.number > 0}" th:href="@{/admin/entities/ctps(size=${ctpPage.size}, page=${ctpPage.number})}">&laquo;</a>
+        <a th:if="${ctpPage.number > 0}" th:href="@{/ctps(size=${ctpPage.size}, page=${ctpPage.number})}">&laquo;</a>
         
         <div th:each="pageNumber : ${pageNumbers}">
-            <a th:href="@{/admin/entities/ctps(size=${ctpPage.size}, page=${pageNumber})}" th:text="${pageNumber}" th:class="${pageNumber == ctpPage.number + 1} ? 'active' : ''"></a>
+            <a th:href="@{/ctps(size=${ctpPage.size}, page=${pageNumber})}" th:text="${pageNumber}" th:class="${pageNumber == ctpPage.number + 1} ? 'active' : ''"></a>
         </div>
         
-        <a th:if="${ctpPage.number + 1 < ctpPage.totalPages}" th:href="@{/admin/entities/ctps(size=${ctpPage.size}, page=${ctpPage.number + 2})}">&raquo;</a>
+        <a th:if="${ctpPage.number + 1 < ctpPage.totalPages}" th:href="@{/ctps(size=${ctpPage.size}, page=${ctpPage.number + 2})}">&raquo;</a>
     </div>
 </div>
 </body>
