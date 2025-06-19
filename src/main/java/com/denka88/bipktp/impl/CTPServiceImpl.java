@@ -5,8 +5,13 @@ import com.denka88.bipktp.model.CTP;
 import com.denka88.bipktp.repo.CTPRepo;
 import com.denka88.bipktp.service.CTPService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -63,5 +68,26 @@ public class CTPServiceImpl implements CTPService {
             throw new IllegalArgumentException("КТП не найден");
         }
         updatedCtp.setName(ctp.getName());
+    }
+
+    @Override
+    public Page<CTP> findPaginated(Pageable pageable) {
+        
+        final List<CTP> ctps = ctpRepo.findAll();
+        
+        int pageSize = pageable.getPageSize();
+        int currentPage = pageable.getPageNumber();
+        int startItem = currentPage * pageSize;
+        List<CTP> list;
+        
+        if(ctps.size() < startItem){
+            list = Collections.emptyList();
+        }
+        else {
+            int toIndex = Math.min(startItem + pageSize, ctps.size());
+            list = ctps.subList(startItem, toIndex);
+        }
+        
+        return new PageImpl<>(list, pageable, ctps.size());
     }
 }

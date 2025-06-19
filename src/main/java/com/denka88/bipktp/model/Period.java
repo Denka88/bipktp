@@ -26,4 +26,9 @@ public class Period {
     
     @OneToMany(mappedBy = "period")
     private List<CTP> ctps;
+
+    @Override
+    public String toString() {
+        return start + " - " + end;
+    }
 }

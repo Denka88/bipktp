@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -33,6 +33,7 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
             padding: 20px;
             transition: transform 0.3s ease;
+            height: 213px;
         }
         .card:hover {
             transform: translateY(-5px);
@@ -69,10 +70,21 @@
         .pagination a:hover:not(.active) {
             background-color: #ddd;
         }
-        .card.empty {
-            background-color: transparent;
-            border: 2px dashed #ccc;
-            box-shadow: none;
+        .add-ctp-btn {
+            display: block;
+            width: 200px;
+            margin: 0 auto 30px;
+            padding: 12px 20px;
+            background-color: #386ffd;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        .add-ctp-btn:hover {
+            background-color: #2a5bd8;
         }
     </style>
 </head>
@@ -80,62 +92,27 @@
 <div class="container">
     <h1>Календарно-тематическое планирование</h1>
 
+    <a href="/admin/entities/ctps/addCtp" class="add-ctp-btn">Добавить КТП</a>
+
     <div class="cards-container">
-        <div class="card">
-            <h3>КТП по математике</h3>
-            <p>Период: 2022 - 2023</p>
-            <p>Комиссия: Естественно-научных дисциплин</p>
-            <p>Специальность: Прикладная информатика</p>
-            <p>Дисциплина: Математика</p>
+        <div class="card" th:each="ctp : ${ctps}">
+            <h3 th:text="${ctp.name}"></h3>
+            <p th:text="${ 'Период: ' + ctp.period.start + ' - ' + ctp.period.end}"></p>
+            <p th:text="${ 'Комиссия: ' + ctp.committee.name}"></p>
+            <p th:if="${ctp.speciality.getQualification().isEmpty()}" th:text="${ 'Специальность: ' + ctp.speciality.name}"></p>
+            <p th:if="${!ctp.speciality.getQualification().isEmpty()}" th:text="${ 'Специальность: ' + ctp.speciality.name + ' (' + ctp.speciality.qualification + ')'}"></p>
+            <p th:text="${ 'Дисциплина: ' + ctp.discipline.name}"></p>
         </div>
-
-        <div class="card">
-            <h3>КТП по программированию</h3>
-            <p>Период: 2022 - 2023</p>
-            <p>Комиссия: Информационных технологий</p>
-            <p>Специальность: Программное обеспечение</p>
-            <p>Дисциплина: Основы программирования</p>
-        </div>
-
-        <div class="card">
-            <h3>КТП по физике</h3>
-            <p>Период: 2021 - 2022</p>
-            <p>Комиссия: Естественно-научных дисциплин</p>
-            <p>Специальность: Техническая физика</p>
-            <p>Дисциплина: Общая физика</p>
-        </div>
-
-        <div class="card">
-            <h3>КТП по истории</h3>
-            <p>Период: 2022 - 2023</p>
-            <p>Комиссия: Гуманитарных дисциплин</p>
-            <p>Специальность: Международные отношения</p>
-            <p>Дисциплина: История мировых цивилизаций</p>
-        </div>
-
-        <!-- Карточка 5 -->
-        <div class="card">
-            <h3>КТП по химии</h3>
-            <p>Период: 2021 - 2022</p>
-            <p>Комиссия: Естественно-научных дисциплин</p>
-            <p>Специальность: Химическая технология</p>
-            <p>Дисциплина: Органическая химия</p>
-        </div>
-
-        <div class="card empty"></div>
-        <div class="card empty"></div>
-        <div class="card empty"></div>
-        <div class="card empty"></div>
     </div>
 
-    <div class="pagination">
-        <a href="#">&laquo;</a>
-        <a href="#" class="active">1</a>
-        <a href="#">2</a>
-        <a href="#">3</a>
-        <a href="#">4</a>
-        <a href="#">5</a>
-        <a href="#">&raquo;</a>
+    <div class="pagination" th:if="${ctpPage.totalPages > 0}">
+        <a th:if="${ctpPage.number > 0}" th:href="@{/admin/entities/ctps(size=${ctpPage.size}, page=${ctpPage.number})}">&laquo;</a>
+        
+        <div th:each="pageNumber : ${pageNumbers}">
+            <a th:href="@{/admin/entities/ctps(size=${ctpPage.size}, page=${pageNumber})}" th:text="${pageNumber}" th:class="${pageNumber == ctpPage.number + 1} ? 'active' : ''"></a>
+        </div>
+        
+        <a th:if="${ctpPage.number + 1 < ctpPage.totalPages}" th:href="@{/admin/entities/ctps(size=${ctpPage.size}, page=${ctpPage.number + 2})}">&raquo;</a>
     </div>
 </div>
 </body>
