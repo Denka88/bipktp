@@ -1,12 +1,15 @@
 package com.denka88.bipktp.impl;
 
 import com.denka88.bipktp.dto.PeriodDto;
+import com.denka88.bipktp.model.CTP;
 import com.denka88.bipktp.model.Period;
+import com.denka88.bipktp.repo.CTPRepo;
 import com.denka88.bipktp.repo.PeriodRepo;
 import com.denka88.bipktp.service.PeriodService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,6 +18,7 @@ import java.util.Optional;
 public class PeriodServiceImpl implements PeriodService {
     
     private final PeriodRepo periodRepo;
+    private final CTPRepo ctpRepo;
     
     @Override
     public List<Period> findAll() {
@@ -38,7 +42,19 @@ public class PeriodServiceImpl implements PeriodService {
 
     @Override
     public void deleteById(Long id) {
-        periodRepo.deleteById(id);
+        Period period = periodRepo.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Период не найден"));
+        
+        List<CTP> ctps = new ArrayList<>(period.getCtps());
+        
+        ctps.forEach(ctp -> {
+            ctp.setPeriod(null);
+            ctpRepo.save(ctp);
+        });
+        
+        period.getCtps().clear();
+        
+        periodRepo.delete(period);
     }
 
     @Override

@@ -37,6 +37,11 @@ public class CTP {
     @JoinColumn(name = "discipline_id")
     private Discipline discipline;
     
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+    
+    
     @OneToMany(mappedBy = "ctp")
     private List<Chapter> chapters;
 }

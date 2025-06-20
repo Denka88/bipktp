@@ -2,13 +2,17 @@ package com.denka88.bipktp.impl;
 
 import com.denka88.bipktp.dto.CTPDto;
 import com.denka88.bipktp.model.CTP;
+import com.denka88.bipktp.model.User;
 import com.denka88.bipktp.repo.CTPRepo;
+import com.denka88.bipktp.repo.UserRepo;
 import com.denka88.bipktp.service.CTPService;
+import com.denka88.bipktp.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -20,6 +24,8 @@ import java.util.Optional;
 public class CTPServiceImpl implements CTPService {
     
     private final CTPRepo ctpRepo;
+    private final UserService userService;
+    private final UserRepo userRepo;
     
     @Override
     public List<CTP> findAll() {
@@ -33,23 +39,22 @@ public class CTPServiceImpl implements CTPService {
 
     @Override
     public CTP save(CTPDto ctpDto) {
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated()) {
+            return null;
+        }
+        
+        String login = auth.getName();
+        
+        User user = userService.findByLogin(login).orElse(null);
+        
         CTP ctp = new CTP();
-        System.out.println("Создал");
         ctp.setName(ctpDto.getName());
-        System.out.println("имя" + ctp.getName());
-        System.out.println("имя" + ctpDto.getName());
         ctp.setCommittee(ctpDto.getCommittee());
-        System.out.println("Комиссия" + ctp.getCommittee());
-        System.out.println("Комиссия" + ctpDto.getCommittee());
         ctp.setPeriod(ctpDto.getPeriod());
-        System.out.println("ПЕриод" + ctp.getPeriod());
-        System.out.println("ПЕриод" + ctpDto.getPeriod());
         ctp.setSpeciality(ctpDto.getSpeciality());
-        System.out.println("Cпец" + ctp.getSpeciality());
-        System.out.println("Cпец" + ctpDto.getSpeciality());
         ctp.setDiscipline(ctpDto.getDiscipline());
-        System.out.println("дисц" + ctp.getDiscipline());
-        System.out.println("дисц" + ctpDto.getDiscipline());
+        ctp.setUser(user);
         
         ctpRepo.save(ctp);
         
@@ -68,6 +73,7 @@ public class CTPServiceImpl implements CTPService {
             throw new IllegalArgumentException("КТП не найден");
         }
         updatedCtp.setName(ctp.getName());
+        ctpRepo.save(updatedCtp);
     }
 
     @Override
