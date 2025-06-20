@@ -1,18 +1,17 @@
 package com.denka88.bipktp.impl;
 
 import com.denka88.bipktp.dto.DisciplineDto;
+import com.denka88.bipktp.model.CTP;
 import com.denka88.bipktp.model.Discipline;
 import com.denka88.bipktp.model.User;
+import com.denka88.bipktp.repo.CTPRepo;
 import com.denka88.bipktp.repo.DisciplineRepo;
 import com.denka88.bipktp.repo.UserRepo;
 import com.denka88.bipktp.service.DisciplineService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +19,7 @@ public class DisciplineServiceImpl implements DisciplineService {
     
     private final DisciplineRepo disciplineRepo;
     private final UserRepo userRepo;
+    private final CTPRepo ctpRepo;
 
     @Override
     public List<Discipline> findAll() {
@@ -48,12 +48,20 @@ public class DisciplineServiceImpl implements DisciplineService {
 
         Set<User> users = new HashSet<>(discipline.getUsers());
         
+        List<CTP> ctps = new ArrayList<>(discipline.getCtps());
+        
+        ctps.forEach(ctp -> {
+            ctp.setDiscipline(null);
+            ctpRepo.save(ctp);
+        });
+        
         users.forEach(user -> {
             user.getDisciplines().remove(discipline);
             userRepo.save(user);
         });
         
         discipline.getUsers().clear();
+        discipline.getCtps().clear();
         
         disciplineRepo.delete(discipline);
     }
