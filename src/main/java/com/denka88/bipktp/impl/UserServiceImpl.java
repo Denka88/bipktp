@@ -1,10 +1,13 @@
 package com.denka88.bipktp.impl;
 
 import com.denka88.bipktp.dto.UserDto;
+import com.denka88.bipktp.model.CTP;
 import com.denka88.bipktp.model.Discipline;
 import com.denka88.bipktp.model.User;
 import com.denka88.bipktp.model.Role;
+import com.denka88.bipktp.repo.CTPRepo;
 import com.denka88.bipktp.repo.UserRepo;
+import com.denka88.bipktp.service.CTPService;
 import com.denka88.bipktp.service.DisciplineService;
 import com.denka88.bipktp.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +23,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepo userRepo;
     private final BCryptPasswordEncoder encoder;
     private final DisciplineService disciplineService;
+    private final CTPRepo ctpRepo;
     
     @Override
     public List<User> findAll() {
@@ -73,8 +77,19 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteById(Long id) {
         
+        User user = userRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
         
-        userRepo.deleteById(id);
+        List<CTP> ctps = new ArrayList<>(user.getCtps());
+        
+        ctps.forEach(ctp -> {
+            ctp.setUser(null);
+            ctpRepo.save(ctp);
+        });
+        
+        user.getCtps().clear();
+        
+        userRepo.delete(user);
     }
 
     @Override

@@ -38,4 +38,7 @@ public class User {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "discipline_id"))
     private List<Discipline> disciplines;
+   
+    @OneToMany(mappedBy = "user")
+    private List<CTP> ctps;
 }
