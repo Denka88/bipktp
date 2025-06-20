@@ -1,12 +1,15 @@
 package com.denka88.bipktp.impl;
 
 import com.denka88.bipktp.dto.CommitteeDto;
+import com.denka88.bipktp.model.CTP;
 import com.denka88.bipktp.model.Committee;
+import com.denka88.bipktp.repo.CTPRepo;
 import com.denka88.bipktp.repo.CommitteeRepo;
 import com.denka88.bipktp.service.CommitteeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,6 +18,7 @@ import java.util.Optional;
 public class CommitteeServiceImpl implements CommitteeService {
     
     private final CommitteeRepo committeeRepo;
+    private final CTPRepo ctpRepo;
     
     @Override
     public List<Committee> findAll() {
@@ -37,7 +41,20 @@ public class CommitteeServiceImpl implements CommitteeService {
 
     @Override
     public void deleteById(Long id) {
-        committeeRepo.deleteById(id);
+        
+        Committee committee = committeeRepo.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Комиссия не найдена"));
+        
+        List<CTP> ctps = new ArrayList<>(committee.getCtps());
+        
+        ctps.forEach(ctp -> {
+            ctp.setCommittee(null);
+            ctpRepo.save(ctp);
+        });
+        
+        committee.getCtps().clear();
+        
+        committeeRepo.delete(committee);
     }
 
     @Override

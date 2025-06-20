@@ -97,11 +97,20 @@
     <div class="cards-container">
         <div class="card" th:each="ctp : ${ctps}" style="cursor: pointer">
             <h3 th:text="${ctp.name}"></h3>
-            <p th:text="${ 'Период: ' + ctp.period.start + ' - ' + ctp.period.end}"></p>
-            <p th:text="${ 'Комиссия: ' + ctp.committee.name}"></p>
-            <p th:if="${ctp.speciality.getQualification().isEmpty()}" th:text="${ 'Специальность: ' + ctp.speciality.name}"></p>
-            <p th:if="${!ctp.speciality.getQualification().isEmpty()}" th:text="${ 'Специальность: ' + ctp.speciality.name + ' (' + ctp.speciality.qualification + ')'}"></p>
-            <p th:text="${ 'Дисциплина: ' + ctp.discipline.name}"></p>
+            <p th:if="${ctp.period != null}" th:text="${ 'Период: ' + ctp.period.start + ' - ' + ctp.period.end}"></p>
+            <p th:if="${ctp.period == null}" th:text="${ 'Период: нет данных' }"></p>
+            
+            <p th:if="${ctp.committee != null}" th:text="${ 'Комиссия: ' + ctp.committee.name}"></p>
+            <p th:if="${ctp.committee == null}" th:text="${ 'Комиссия: нет данных' }"></p>
+            
+            <div th:if="${ctp.speciality != null}">
+                <p th:if="${ctp.speciality.getQualification().isEmpty()}" th:text="${ 'Специальность: ' + ctp.speciality.name}"></p>
+                <p th:if="${!ctp.speciality.getQualification().isEmpty()}" th:text="${ 'Специальность: ' + ctp.speciality.name + ' (' + ctp.speciality.qualification + ')'}"></p>
+            </div>
+            <p th:if="${ctp.speciality == null}" th:text="${'Специальность: нет данных'}"></p>
+            
+            <p th:if="${ctp.discipline != null}" th:text="${ 'Дисциплина: ' + ctp.discipline.name}"></p>
+            <p th:if="${ctp.discipline == null}" th:text="${ 'Дисциплина: нет данных'}"></p>
         </div>
     </div>
 
