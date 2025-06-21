@@ -111,6 +111,9 @@
             
             <p th:if="${ctp.discipline != null}" th:text="${ 'Дисциплина: ' + ctp.discipline.name}"></p>
             <p th:if="${ctp.discipline == null}" th:text="${ 'Дисциплина: нет данных'}"></p>
+            
+            <p th:if="${ctp.user != null}" th:text="${ 'Создатель: ' + ctp.user.surname + ' ' + ctp.user.name + ' ' + ctp.user.patronymic}"></p>
+            <p th:if="${ctp.user == null}" th:text="${ 'Создатель: нет данных'}"></p>
         </div>
     </div>
 
