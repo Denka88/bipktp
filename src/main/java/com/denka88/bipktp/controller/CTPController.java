@@ -69,4 +69,10 @@ public class CTPController {
         return "redirect:/ctps";
     }
     
+    @GetMapping("/ctp/{id}")
+    public String ctp(@PathVariable Long id, Model model) {
+        model.addAttribute("ctp", ctpService.findById(id));
+        return "admin/entities/ctps/ctp";
+    }
+    
 }
