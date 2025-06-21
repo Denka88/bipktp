@@ -1,7 +1,9 @@
 package com.denka88.bipktp.impl;
 
 import com.denka88.bipktp.dto.ChapterDto;
+import com.denka88.bipktp.model.CTP;
 import com.denka88.bipktp.model.Chapter;
+import com.denka88.bipktp.repo.CTPRepo;
 import com.denka88.bipktp.repo.ChapterRepo;
 import com.denka88.bipktp.service.ChapterService;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +17,7 @@ import java.util.Optional;
 public class ChapterServiceImpl implements ChapterService {
     
     private final ChapterRepo chapterRepo;
+    private final CTPRepo ctpRepo;
     
     @Override
     public List<Chapter> findAll() {
@@ -30,7 +33,11 @@ public class ChapterServiceImpl implements ChapterService {
     public Chapter save(ChapterDto chapterDto) {
         Chapter chapter = new Chapter();
         chapter.setTitle(chapterDto.getTitle());
-        
+
+        CTP ctp = ctpRepo.findById(chapterDto.getCtpId())
+                .orElseThrow(() -> new IllegalArgumentException("КТП не найден"));
+        chapter.setCtp(ctp);
+
         return chapterRepo.save(chapter);
     }
 

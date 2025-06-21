@@ -34,36 +34,38 @@
 
     <div class="row row-cols-1 row-cols-md-3 g-4 mb-4">
         <div class="col" th:each="ctp : ${ctps}">
-            <div class="card h-100 card-hover">
-                <div class="card-body">
-                    <h5 class="card-title" th:text="${ctp.name}"></h5>
-                    <p class="card-text">
-                        <span th:if="${ctp.period != null}" th:text="${'Период: ' + ctp.period.start + ' - ' + ctp.period.end}"></span>
-                        <span th:if="${ctp.period == null}" th:text="${'Период: нет данных'}"></span>
-                    </p>
-                    <p class="card-text">
-                        <span th:if="${ctp.committee != null}" th:text="${'Комиссия: ' + ctp.committee.name}"></span>
-                        <span th:if="${ctp.committee == null}" th:text="${'Комиссия: нет данных'}"></span>
-                    </p>
-                    <p class="card-text">
-                        <span th:if="${ctp.speciality != null}">
-                            <span th:if="${ctp.speciality.getQualification().isEmpty()}" th:text="${'Специальность: ' + ctp.speciality.name}"></span>
-                            <span th:if="${!ctp.speciality.getQualification().isEmpty()}" th:text="${'Специальность: ' + ctp.speciality.name + ' (' + ctp.speciality.qualification + ')'}"></span>
-                        </span>
-                        <span th:if="${ctp.speciality == null}" th:text="${'Специальность: нет данных'}"></span>
-                    </p>
-                    <p class="card-text">
-                        <span th:if="${ctp.discipline != null}" th:text="${'Дисциплина: ' + ctp.discipline.name}"></span>
-                        <span th:if="${ctp.discipline == null}" th:text="${'Дисциплина: нет данных'}"></span>
-                    </p>
+            <a th:href="@{/ctps/ctp/{id}(id=${ctp.id})}" class="text-decoration-none">
+                <div class="card h-100 card-hover">
+                    <div class="card-body" style="cursor: pointer">
+                        <h5 class="card-title" th:text="${ctp.name}"></h5>
+                        <p class="card-text">
+                            <span th:if="${ctp.period != null}" th:text="${'Период: ' + ctp.period.start + ' - ' + ctp.period.end}"></span>
+                            <span th:if="${ctp.period == null}" th:text="${'Период: нет данных'}"></span>
+                        </p>
+                        <p class="card-text">
+                            <span th:if="${ctp.committee != null}" th:text="${'Комиссия: ' + ctp.committee.name}"></span>
+                            <span th:if="${ctp.committee == null}" th:text="${'Комиссия: нет данных'}"></span>
+                        </p>
+                        <p class="card-text">
+                            <span th:if="${ctp.speciality != null}">
+                                <span th:if="${ctp.speciality.getQualification().isEmpty()}" th:text="${'Специальность: ' + ctp.speciality.name}"></span>
+                                <span th:if="${!ctp.speciality.getQualification().isEmpty()}" th:text="${'Специальность: ' + ctp.speciality.name + ' (' + ctp.speciality.qualification + ')'}"></span>
+                            </span>
+                            <span th:if="${ctp.speciality == null}" th:text="${'Специальность: нет данных'}"></span>
+                        </p>
+                        <p class="card-text">
+                            <span th:if="${ctp.discipline != null}" th:text="${'Дисциплина: ' + ctp.discipline.name}"></span>
+                            <span th:if="${ctp.discipline == null}" th:text="${'Дисциплина: нет данных'}"></span>
+                        </p>
+                    </div>
+                    <div class="card-footer">
+                        <small class="text-muted">
+                            <span th:if="${ctp.user != null}" th:text="${'Создатель: ' + ctp.user.surname + ' ' + ctp.user.name + ' ' + ctp.user.patronymic}"></span>
+                            <span th:if="${ctp.user == null}" th:text="${'Создатель: нет данных'}"></span>
+                        </small>
+                    </div>
                 </div>
-                <div class="card-footer">
-                    <small class="text-muted">
-                        <span th:if="${ctp.user != null}" th:text="${'Создатель: ' + ctp.user.surname + ' ' + ctp.user.name + ' ' + ctp.user.patronymic}"></span>
-                        <span th:if="${ctp.user == null}" th:text="${'Создатель: нет данных'}"></span>
-                    </small>
-                </div>
-            </div>
+            </a>
         </div>
     </div>
 

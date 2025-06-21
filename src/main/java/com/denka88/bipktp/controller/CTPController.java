@@ -1,6 +1,8 @@
 package com.denka88.bipktp.controller;
 
 import com.denka88.bipktp.dto.CTPDto;
+import com.denka88.bipktp.dto.ChapterDto;
+import com.denka88.bipktp.dto.RecordDto;
 import com.denka88.bipktp.model.CTP;
 import com.denka88.bipktp.service.*;
 import lombok.RequiredArgsConstructor;
@@ -25,10 +27,23 @@ public class CTPController {
     private final DisciplineService disciplineService;
     private final SpecialityService specialityService;
     private final PeriodService periodService;
+    private final ChapterService chapterService;
+    private final LessonTypeService lessonTypeService;
+    private final TeachMethodService teachMethodService;
     
     @ModelAttribute("newCTP")
     public CTPDto newCTP() {
         return new CTPDto();
+    }
+    
+    @ModelAttribute("newRecord")
+    public RecordDto newRecord() {
+        return new RecordDto();
+    }
+    
+    @ModelAttribute("newChapter")
+    public ChapterDto newChapter() {
+        return new ChapterDto();
     }
 
     @GetMapping
@@ -68,11 +83,17 @@ public class CTPController {
         ctpService.save(ctpDto);
         return "redirect:/ctps";
     }
-    
+
     @GetMapping("/ctp/{id}")
-    public String ctp(@PathVariable Long id, Model model) {
-        model.addAttribute("ctp", ctpService.findById(id));
+    public String viewCTP(@PathVariable Long id, Model model) {
+        CTP ctp = ctpService.findById(id).orElseThrow(() -> new IllegalArgumentException("КТП не найден"));
+        model.addAttribute("ctp", ctp);
+        model.addAttribute("lessonTypes", lessonTypeService.findAll());
+        model.addAttribute("teachMethods", teachMethodService.findAll());
+        
         return "admin/entities/ctps/ctp";
     }
+    
+    
     
 }

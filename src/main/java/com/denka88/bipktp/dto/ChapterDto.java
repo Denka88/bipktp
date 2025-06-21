@@ -11,4 +11,6 @@ public class ChapterDto {
     @NotEmpty
     private String title;
     
+    private Long ctpId;
+    
 }

@@ -3,10 +3,471 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>КТП - Календарно-тематические планы</title>
-    <title th:text=""></title>
+    <title th:text="${ctp.name}"></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.14.0-beta2/css/bootstrap-select.min.css">
+    <style>
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .table-container {
+            margin-top: 2rem;
+        }
+        .add-btn-cell {
+            border: 2px dashed #ccc;
+            text-align: center;
+            cursor: pointer;
+        }
+        .add-btn-cell:hover {
+            background-color: #f8f9fa;
+        }
+        .context-menu {
+            position: absolute;
+            z-index: 1000;
+            display: none;
+            background-color: white;
+            border: 1px solid #ddd;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            border-radius: 4px;
+            padding: 5px 0;
+        }
+        .context-menu-item {
+            padding: 5px 15px;
+            cursor: pointer;
+        }
+        .context-menu-item:hover {
+            background-color: #f8f9fa;
+        }
+        .record-row:hover {
+            background-color: #f8f9fa;
+            cursor: pointer;
+        }
+        .modal-content {
+            border-radius: 10px;
+        }
+        .modal-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .modal-footer {
+            border-top: 1px solid #dee2e6;
+        }
+        .form-label {
+            font-weight: 500;
+        }
+        .bootstrap-select .dropdown-toggle {
+            border: 1px solid #ced4da;
+            background-color: white;
+        }
+        .bootstrap-select .dropdown-toggle:focus {
+            border-color: #86b7fe;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        }
+    </style>
 </head>
-<body>
+<body class="bg-light">
+<div class="container py-4">
+    <div class="header-container">
+        <h2 th:text="${ctp.name}"></h2>
+        <button class="btn btn-sm btn-outline-secondary" id="editTitleBtn">
+            <i class="bi bi-pencil"></i> Изменить КТП
+        </button>
+    </div>
 
+    <div class="table-container">
+        <table class="table table-bordered">
+            <thead class="table-light">
+            <tr>
+                <th style="width: 5%">№</th>
+                <th style="width: 25%">Тема</th>
+                <th style="width: 5%">Часы</th>
+                <th style="width: 15%">Оборудование</th>
+                <th style="width: 10%">Тип занятия</th>
+                <th style="width: 15%">Методы обучения</th>
+                <th style="width: 25%">Домашнее задание</th>
+            </tr>
+            </thead>
+            <tbody th:each="chapter : ${ctp.chapters}">
+            <tr>
+                <td colspan="7" class="table-primary">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <strong th:text="${chapter.title}"></strong>
+                        <button class="btn btn-sm btn-outline-primary add-record-btn"
+                                th:attr="data-chapter-id=${chapter.id}">
+                            <i class="bi bi-plus-lg"></i> Добавить занятие
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            <tr th:each="record, recIter : ${chapter.records}" class="record-row"
+                th:attr="data-record-id=${record.id}, data-chapter-id=${chapter.id}">
+                <td th:text="${recIter.count}"></td>
+                <td th:text="${record.title}"></td>
+                <td th:text="${record.hours}"></td>
+                <td th:text="${record.equipment}"></td>
+                <td th:text="${record.lessonType.name}"></td>
+                <td>
+                    <span th:each="method, iter : ${record.teachMethods}" th:text="${method.name}">
+                        <span th:if="${!iter.last}">, </span>
+                    </span>
+                </td>
+                <td th:text="${record.homework}"></td>
+            </tr>
+            <tr>
+                <td colspan="7" class="add-btn-cell">
+                    <button class="btn btn-sm btn-outline-primary add-chapter-btn">
+                        <i class="bi bi-plus-lg"></i> Добавить раздел
+                    </button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="modal fade" id="recordModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="recordModalTitle">Добавить новое занятие</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="recordForm" th:object="${newRecord}">
+                        <input type="hidden" id="recordId">
+                        <input type="hidden" id="chapterId">
+
+                        <div class="row mb-3">
+                            <div class="col-md-8">
+                                <label for="recordTitle" class="form-label">Тема занятия</label>
+                                <input type="text" class="form-control" id="recordTitle" th:field="*{title}" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="recordHours" class="form-label">Часы</label>
+                                <input type="number" class="form-control" id="recordHours" min="1" th:field="*{hours}" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="recordEquipment" class="form-label">Оборудование</label>
+                            <input type="text" class="form-control" id="recordEquipment" th:field="*{equipment}">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="recordLessonType" class="form-label">Тип занятия</label>
+                            <select class="form-select" id="recordLessonType" th:field="*{lessonType}" required>
+                                <option th:each="lessonType : ${lessonTypes}" th:value="${lessonType.id}" th:text="${lessonType.name}"></option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="teachMethodsSelect" class="form-label">Методы обучения</label>
+                            <select class="selectpicker" multiple data-live-search="true" data-style="btn-light"
+                                    data-width="100%" id="teachMethodsSelect" name="teachMethodsIds">
+                                <option th:each="method : ${teachMethods}"
+                                        th:value="${method.id}"
+                                        th:text="${method.name}"></option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="recordHomework" class="form-label">Домашнее задание</label>
+                            <textarea class="form-control" id="recordHomework" rows="3" th:field="*{homework}"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="button" class="btn btn-primary" id="saveRecordBtn">Сохранить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Контекстное меню для записей -->
+    <div class="context-menu" id="recordContextMenu">
+        <div class="context-menu-item" id="editRecordItem">
+            <i class="bi bi-pencil"></i> Редактировать
+        </div>
+        <div class="context-menu-item" id="deleteRecordItem">
+            <i class="bi bi-trash"></i> Удалить
+        </div>
+    </div>
+
+    <!-- Контекстное меню для разделов -->
+    <div class="context-menu" id="chapterContextMenu">
+        <div class="context-menu-item" id="editChapterItem">
+            <i class="bi bi-pencil"></i> Редактировать раздел
+        </div>
+        <div class="context-menu-item" id="deleteChapterItem">
+            <i class="bi bi-trash"></i> Удалить раздел
+        </div>
+        <div class="context-menu-item" id="addRecordToChapterItem">
+            <i class="bi bi-plus-lg"></i> Добавить занятие
+        </div>
+    </div>
+
+    <!-- Модальное окно подтверждения удаления -->
+    <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Подтверждение удаления</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Вы уверены, что хотите удалить эту запись?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Удалить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.14.0-beta2/js/bootstrap-select.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Инициализация Bootstrap Select
+        $('.selectpicker').selectpicker();
+
+        // Элементы контекстного меню для записей
+        const recordContextMenu = document.getElementById('recordContextMenu');
+        const editRecordItem = document.getElementById('editRecordItem');
+        const deleteRecordItem = document.getElementById('deleteRecordItem');
+
+        // Элементы контекстного меню для разделов
+        const chapterContextMenu = document.getElementById('chapterContextMenu');
+        const editChapterItem = document.getElementById('editChapterItem');
+        const deleteChapterItem = document.getElementById('deleteChapterItem');
+        const addRecordToChapterItem = document.getElementById('addRecordToChapterItem');
+
+        // Модальное окно удаления
+        const confirmDeleteModal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
+        const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+
+        let selectedRecordId = null;
+        let selectedChapterId = null;
+
+        const recordModal = new bootstrap.Modal(document.getElementById('recordModal'));
+        const recordModalTitle = document.getElementById('recordModalTitle');
+        const saveRecordBtn = document.getElementById('saveRecordBtn');
+
+        const recordIdInput = document.getElementById('recordId');
+        const chapterIdInput = document.getElementById('chapterId');
+        const recordTitleInput = document.getElementById('recordTitle');
+        const recordHoursInput = document.getElementById('recordHours');
+        const recordEquipmentInput = document.getElementById('recordEquipment');
+        const recordLessonTypeSelect = document.getElementById('recordLessonType');
+        const teachMethodsSelect = $('#teachMethodsSelect');
+        const recordHomeworkTextarea = document.getElementById('recordHomework');
+
+        const addRecordButtons = document.querySelectorAll('.add-record-btn');
+        addRecordButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                // Устанавливаем ID раздела
+                chapterIdInput.value = this.getAttribute('data-chapter-id');
+
+                // Сбрасываем форму
+                resetRecordForm();
+
+                // Устанавливаем заголовок модального окна
+                recordModalTitle.textContent = 'Добавить новое занятие';
+
+                // Показываем модальное окно
+                recordModal.show();
+            });
+        });
+
+        editRecordItem.addEventListener('click', function() {
+            if (!selectedRecordId) return;
+
+            // Находим строку таблицы с выбранной записью
+            const recordRow = document.querySelector(`.record-row[data-record-id="${selectedRecordId}"]`);
+            if (!recordRow) return;
+
+            // Заполняем форму данными из таблицы
+            fillRecordFormFromRow(recordRow);
+
+            // Устанавливаем ID записи и раздела
+            recordIdInput.value = selectedRecordId;
+            chapterIdInput.value = recordRow.getAttribute('data-chapter-id');
+
+            // Устанавливаем заголовок модального окна
+            recordModalTitle.textContent = 'Редактировать занятие';
+
+            // Показываем модальное окно
+            recordModal.show();
+
+            // Скрываем контекстное меню
+            recordContextMenu.style.display = 'none';
+        });
+
+        saveRecordBtn.addEventListener('click', function() {
+            if (!validateRecordForm()) {
+                alert('Пожалуйста, заполните все обязательные поля');
+                return;
+            }
+
+            // Собираем данные формы
+            const recordData = {
+                id: recordIdInput.value || null,
+                chapterId: chapterIdInput.value,
+                title: recordTitleInput.value,
+                hours: recordHoursInput.value,
+                equipment: recordEquipmentInput.value,
+                lessonType: recordLessonTypeSelect.value,
+                homework: recordHomeworkTextarea.value,
+                teachMethodsIds: teachMethodsSelect.val() || []
+            };
+
+            console.log('Данные для сохранения:', recordData);
+
+            // Закрываем модальное окно
+            recordModal.hide();
+        });
+
+        function fillRecordFormFromRow(row) {
+            const cells = row.cells;
+
+            // Заполняем основные поля
+            recordTitleInput.value = cells[1].textContent;
+            recordHoursInput.value = cells[2].textContent;
+            recordEquipmentInput.value = cells[3].textContent;
+            recordHomeworkTextarea.value = cells[6].textContent;
+
+            // Устанавливаем тип занятия
+            const lessonTypeText = cells[4].textContent;
+            const lessonTypeOptions = recordLessonTypeSelect.options;
+            for (let i = 0; i < lessonTypeOptions.length; i++) {
+                if (lessonTypeOptions[i].textContent === lessonTypeText) {
+                    recordLessonTypeSelect.value = lessonTypeOptions[i].value;
+                    break;
+                }
+            }
+
+            // Устанавливаем методы обучения
+            const methodsText = cells[5].textContent;
+            const selectedMethods = [];
+            const methodOptions = teachMethodsSelect.find('option');
+
+            methodOptions.each(function() {
+                if (methodsText.includes(this.textContent)) {
+                    selectedMethods.push(this.value);
+                }
+            });
+
+            teachMethodsSelect.selectpicker('val', selectedMethods);
+        }
+
+        function resetRecordForm() {
+            recordIdInput.value = '';
+            recordTitleInput.value = '';
+            recordHoursInput.value = '';
+            recordEquipmentInput.value = '';
+            recordLessonTypeSelect.value = '';
+            recordHomeworkTextarea.value = '';
+            teachMethodsSelect.selectpicker('val', []);
+            teachMethodsSelect.selectpicker('refresh');
+        }
+
+        function validateRecordForm() {
+            return recordTitleInput.value.trim() !== '' &&
+                recordHoursInput.value.trim() !== '' &&
+                recordLessonTypeSelect.value !== '';
+        }
+
+        // Обработчики для строк с записями
+        const recordRows = document.querySelectorAll('.record-row');
+        recordRows.forEach(row => {
+            row.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+
+                selectedRecordId = this.getAttribute('data-record-id');
+                selectedChapterId = this.getAttribute('data-chapter-id');
+
+                recordContextMenu.style.display = 'block';
+                chapterContextMenu.style.display = 'none';
+                recordContextMenu.style.left = `${e.pageX}px`;
+                recordContextMenu.style.top = `${e.pageY}px`;
+
+                return false;
+            });
+        });
+
+        // Обработчики для заголовков разделов
+        const chapterHeaders = document.querySelectorAll('tbody > tr:first-child');
+        chapterHeaders.forEach(header => {
+            header.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+
+                selectedChapterId = this.querySelector('button').getAttribute('data-chapter-id');
+
+                chapterContextMenu.style.display = 'block';
+                recordContextMenu.style.display = 'none';
+                chapterContextMenu.style.left = `${e.pageX}px`;
+                chapterContextMenu.style.top = `${e.pageY}px`;
+
+                return false;
+            });
+        });
+
+        // Закрытие контекстного меню при клике вне его
+        document.addEventListener('click', function() {
+            recordContextMenu.style.display = 'none';
+            chapterContextMenu.style.display = 'none';
+        });
+
+        // Обработчики пунктов меню для записей
+        editRecordItem.addEventListener('click', function() {
+            recordContextMenu.style.display = 'none';
+        });
+
+        deleteRecordItem.addEventListener('click', function() {
+            confirmDeleteModal.show();
+            recordContextMenu.style.display = 'none';
+        });
+
+        // Обработчики пунктов меню для разделов
+        editChapterItem.addEventListener('click', function() {
+            alert(`Редактирование раздела с ID: ${selectedChapterId}`);
+            chapterContextMenu.style.display = 'none';
+        });
+
+        deleteChapterItem.addEventListener('click', function() {
+            confirmDeleteModal.show();
+            chapterContextMenu.style.display = 'none';
+        });
+
+        addRecordToChapterItem.addEventListener('click', function() {
+            // Устанавливаем ID раздела
+            chapterIdInput.value = selectedChapterId;
+
+            // Сбрасываем форму
+            resetRecordForm();
+
+            // Устанавливаем заголовок модального окна
+            recordModalTitle.textContent = 'Добавить новое занятие';
+
+            // Показываем модальное окно
+            recordModal.show();
+
+            chapterContextMenu.style.display = 'none';
+        });
+
+        // Обработчик кнопки подтверждения удаления
+        confirmDeleteBtn.addEventListener('click', function() {
+            alert(`Удаление элемента с ID: ${selectedRecordId || selectedChapterId}`);
+            confirmDeleteModal.hide();
+        });
+    });
+</script>
 </body>
 </html>
