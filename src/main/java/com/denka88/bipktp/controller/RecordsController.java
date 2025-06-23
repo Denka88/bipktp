@@ -2,13 +2,13 @@ package com.denka88.bipktp.controller;
 
 import com.denka88.bipktp.dto.ChapterDto;
 import com.denka88.bipktp.dto.RecordDto;
+import com.denka88.bipktp.model.Record;
 import com.denka88.bipktp.service.RecordService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Controller
 @RequestMapping("/ctps/ctp/{id}")
@@ -30,6 +30,22 @@ public class RecordsController {
     @PostMapping("/save")
     public String save(@ModelAttribute("newRecord") RecordDto recordDto, @PathVariable Long id) {
         recordService.save(recordDto);
+        return "redirect:/ctps/ctp/" + id;
+    }
+    
+    @PostMapping("/delete")
+    public String delete(@PathVariable Long id, @RequestParam Long deleteId) {
+        recordService.deleteById(deleteId);
+        return "redirect:/ctps/ctp/" + id;
+    }
+
+    @PostMapping("/update")
+    public String update(@ModelAttribute("updateRecord") Record record,
+                         @PathVariable Long id,
+                         @RequestParam Long updateId,
+                         @RequestParam List<Long> teachMethodsIds) {
+        record.setId(updateId);
+        recordService.update(record, teachMethodsIds);
         return "redirect:/ctps/ctp/" + id;
     }
     

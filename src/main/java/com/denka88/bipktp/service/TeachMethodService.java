@@ -14,4 +14,6 @@ public interface TeachMethodService {
     void deleteById(Long id);
     void update(TeachMethod teachMethod);
     
+    List<TeachMethod> findAllByIds(List<Long> ids);
+    
 }

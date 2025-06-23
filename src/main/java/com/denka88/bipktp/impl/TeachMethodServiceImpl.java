@@ -37,6 +37,7 @@ public class TeachMethodServiceImpl implements TeachMethodService {
 
     @Override
     public void deleteById(Long id) {
+        
         teachMethodRepo.deleteById(id);
     }
 
@@ -48,5 +49,10 @@ public class TeachMethodServiceImpl implements TeachMethodService {
         }
         updatedTeachMethod.setName(teachMethod.getName());
         teachMethodRepo.save(updatedTeachMethod);
+    }
+
+    @Override
+    public List<TeachMethod> findAllByIds(List<Long> ids) {
+        return teachMethodRepo.findAllById(ids);
     }
 }

@@ -29,9 +29,8 @@ public class RecordDto {
     private LessonType lessonType;
 
     @NotEmpty
-    private List<TeachMethod> teachMethods;
+    private List<Long> teachMethodsIds;
 
-    @NotEmpty
-    private Chapter chapter;
+    private Long chapterId;
     
 }

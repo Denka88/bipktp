@@ -12,6 +12,6 @@ public interface RecordService {
     Optional<Record> findById(Long id);
     Record save(RecordDto recordDto);
     void deleteById(Long id);
-    void update(Record record);
+    void update(Record record, List<Long> teachMethodsIds);
     
 }
