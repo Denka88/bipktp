@@ -74,7 +74,6 @@ public class RecordServiceImpl implements RecordService {
         List<TeachMethod> teachMethods = teachMethodService.findAllByIds(teachMethodsIds);
         updatedRecord.setTeachMethods(teachMethods);
 
-        updatedRecord.setChapter(record.getChapter());
         recordRepo.save(updatedRecord);
     }
 }

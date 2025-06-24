@@ -73,6 +73,10 @@ public class CTPServiceImpl implements CTPService {
             throw new IllegalArgumentException("КТП не найден");
         }
         updatedCtp.setName(ctp.getName());
+        updatedCtp.setCommittee(ctp.getCommittee());
+        updatedCtp.setPeriod(ctp.getPeriod());
+        updatedCtp.setSpeciality(ctp.getSpeciality());
+        updatedCtp.setDiscipline(ctp.getDiscipline());
         ctpRepo.save(updatedCtp);
     }
 

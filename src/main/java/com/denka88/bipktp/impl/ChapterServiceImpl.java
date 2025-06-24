@@ -5,7 +5,9 @@ import com.denka88.bipktp.model.CTP;
 import com.denka88.bipktp.model.Chapter;
 import com.denka88.bipktp.repo.CTPRepo;
 import com.denka88.bipktp.repo.ChapterRepo;
+import com.denka88.bipktp.repo.RecordRepo;
 import com.denka88.bipktp.service.ChapterService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +20,7 @@ public class ChapterServiceImpl implements ChapterService {
     
     private final ChapterRepo chapterRepo;
     private final CTPRepo ctpRepo;
+    private final RecordRepo recordRepo;
     
     @Override
     public List<Chapter> findAll() {
@@ -43,6 +46,11 @@ public class ChapterServiceImpl implements ChapterService {
 
     @Override
     public void deleteById(Long id) {
+        Chapter chapter = chapterRepo.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Раздел не найден"));
+        
+        recordRepo.deleteAll(chapter.getRecords());
+        
         chapterRepo.deleteById(id);
     }
 

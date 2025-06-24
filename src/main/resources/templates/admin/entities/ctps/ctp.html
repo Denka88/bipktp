@@ -77,7 +77,7 @@
     <div class="header-container">
         <h2 th:text="${ctp.name}"></h2>
         <button class="btn btn-sm btn-outline-secondary" id="editTitleBtn">
-            <i class="bi bi-pencil"></i> Изменить КТП
+            <a th:href="@{/ctps/ctp/{id}/edit(id=${ctp.id})}"><i class="bi bi-pencil"></i> Изменить КТП</a>
         </button>
     </div>
 
@@ -108,18 +108,20 @@
             </tr>
             <tr th:each="record, recIter : ${chapter.records}" class="record-row"
                 th:attr="data-record-id=${record.id}, data-chapter-id=${chapter.id}">
-                <td th:text="${recIter.count}"></td>
-                <td th:text="${record.title}"></td>
-                <td th:text="${record.hours}"></td>
-                <td th:text="${record.equipment}"></td>
-                <td th:text="${record.lessonType.name}"></td>
-                <td>
+                <td class="text-break" th:text="${recIter.count}"></td>
+                <td class="text-break" th:text="${record.title}"></td>
+                <td class="text-break" th:text="${record.hours}"></td>
+                <td class="text-break" th:text="${record.equipment}"></td>
+                <td class="text-break" th:text="${record.lessonType.name}"></td>
+                <td class="text-break">
                     <span th:each="method, iter : ${record.teachMethods}" th:text="${method.name}">
                         <span th:if="${!iter.last}">, </span>
                     </span>
                 </td>
-                <td th:text="${record.homework}"></td>
+                <td class="text-break" th:text="${record.homework}"></td>
             </tr>
+            </tbody>
+            <tfoot>
             <tr>
                 <td colspan="7" class="add-btn-cell">
                     <button class="btn btn-sm btn-outline-primary add-chapter-btn">
@@ -127,7 +129,7 @@
                     </button>
                 </td>
             </tr>
-            </tbody>
+            </tfoot>
         </table>
     </div>
 
@@ -193,7 +195,6 @@
         </div>
     </div>
 
-    <!-- Контекстное меню для записей -->
     <div class="context-menu" id="recordContextMenu">
         <div class="context-menu-item" id="editRecordItem">
             <i class="bi bi-pencil"></i> Редактировать
@@ -203,9 +204,8 @@
         </div>
     </div>
 
-    <!-- Контекстное меню для разделов -->
     <div class="context-menu" id="chapterContextMenu">
-        <div class="context-menu-item" id="editChapterItem">
+        <div class="context-menu-item" id="editChapterItem" data-bs-toggle="modal" data-bs-target="#chapterModal">
             <i class="bi bi-pencil"></i> Редактировать раздел
         </div>
         <div class="context-menu-item" id="deleteChapterItem">
@@ -216,7 +216,6 @@
         </div>
     </div>
 
-    <!-- Модальное окно подтверждения удаления -->
     <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -229,9 +228,47 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-                    <form method="post" th:action="@{/ctps/ctp/{id}/delete(id=${ctp.id})}">
+
+                    <form method="post" th:action="@{/ctps/ctp/{id}/delete(id=${ctp.id})}" id="deleteRecordForm">
                         <input type="hidden" name="deleteId" id="deleteId" value="">
                         <button type="submit" class="btn btn-danger">Удалить</button>
+                    </form>
+
+                    <form method="post" th:action="@{/ctps/ctp/{id}/deleteChapter(id=${ctp.id})}" id="deleteChapterForm" style="display: none;">
+                        <input type="hidden" name="deleteChapterId" id="deleteChapterId" value="">
+                        <button type="submit" class="btn btn-danger">Удалить</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <div class="modal fade" id="chapterModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="chapterModalTitle">Добавить новый раздел</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="chapterForm" method="post" th:object="${newChapter}" th:action="@{/ctps/ctp/{id}/saveChapter(id=${ctp.id})}">
+                        <input type="hidden" id="chapterModalId" name="id">
+                        <input type="hidden" name="ctpId" th:value="${ctp.id}">
+
+                        <input type="hidden" name="updateChapterId" id="updateChapterIdInput">
+
+                        <div class="mb-3">
+                            <label for="chapterTitle" class="form-label">Название раздела</label>
+                            <input type="text" class="form-control" id="chapterTitle" th:field="*{title}" name="title" required>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                            <button type="submit" class="btn btn-primary">Сохранить</button>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -277,6 +314,14 @@
         const urlParams = new URLSearchParams(window.location.search);
         const deleteIdFromUrl = urlParams.get('deleteId');
         const updateIdFromUrl = urlParams.get('updateId');
+        const chapterIdFromUrl = urlParams.get('chapterId');
+        const updateChapterIdFromUrl = urlParams.get('updateChapterId');
+
+        const chapterModal = new bootstrap.Modal(document.getElementById('chapterModal'));
+        const chapterModalTitle = document.getElementById('chapterModalTitle');
+        const chapterForm = document.getElementById('chapterForm');
+        const chapterModalId = document.getElementById('chapterModalId');
+        const chapterTitle = document.getElementById('chapterTitle');
 
         const recordForm = document.getElementById('recordForm');
         const ctpId = document.getElementById('ctpId');
@@ -306,11 +351,31 @@
             }
         }
 
+        if (updateChapterIdFromUrl) {
+            const chapterHeader = document.querySelector(`button[data-chapter-id="${updateChapterIdFromUrl}"]`).parentElement;
+            const chapterTitleText = chapterHeader.querySelector('strong').textContent;
+
+            chapterModalId.value = updateChapterIdFromUrl;
+            chapterTitle.value = chapterTitleText;
+
+            document.getElementById('updateChapterIdInput').value = updateChapterIdFromUrl;
+
+            chapterModalTitle.textContent = 'Редактировать раздел';
+            chapterForm.setAttribute('action', '/ctps/ctp/' + ctpId.value + '/updateChapter');
+            chapterForm.setAttribute('th:object', '${updateChapter}');
+
+            chapterModal.show();
+        }
+
         const addRecordButtons = document.querySelectorAll('.add-record-btn');
         addRecordButtons.forEach(button => {
             button.addEventListener('click', function() {
                 const chapterId = this.getAttribute('data-chapter-id');
                 chapterIdInput.value = chapterId;
+
+                const url = new URL(window.location);
+                url.searchParams.set('chapterId', chapterId);
+                window.history.pushState({}, '', url);
 
                 resetRecordForm();
 
@@ -318,6 +383,72 @@
 
                 recordModal.show();
             });
+        });
+
+        document.querySelector('.add-chapter-btn').addEventListener('click', function() {
+            resetChapterForm();
+            chapterModalTitle.textContent = 'Добавить новый раздел';
+            chapterForm.setAttribute('action', '/ctps/ctp/' + ctpId.value + '/saveChapter');
+            chapterForm.setAttribute('th:object', 'newChapter');
+            chapterModal.show();
+        });
+
+        editChapterItem.addEventListener('click', function() {
+            if (!selectedChapterId) return;
+
+            const url = new URL(window.location);
+            url.searchParams.set('updateChapterId', selectedChapterId);
+            window.history.pushState({}, '', url);
+
+            const chapterHeader = document.querySelector(`button[data-chapter-id="${selectedChapterId}"]`).parentElement;
+            const chapterTitleText = chapterHeader.querySelector('strong').textContent;
+
+            chapterModalId.value = selectedChapterId;
+            chapterTitle.value = chapterTitleText;
+
+            document.getElementById('updateChapterIdInput').value = selectedChapterId;
+            
+            chapterModalTitle.textContent = 'Редактировать раздел';
+            chapterForm.setAttribute('action', '/ctps/ctp/' + ctpId.value + '/updateChapter');
+            chapterForm.setAttribute('th:object', 'updateChapter');
+
+            chapterModal.show();
+            chapterContextMenu.style.display = 'none';
+        });
+
+        deleteChapterItem.addEventListener('click', function() {
+            if (!selectedChapterId) return;
+
+            document.querySelector('#confirmDeleteModal .modal-body').textContent =
+                'Вы уверены, что хотите удалить этот раздел? Все связанные занятия также будут удалены.';
+
+            const url = new URL(window.location);
+            url.searchParams.set('deleteChapterId', selectedChapterId);
+            window.history.pushState({}, '', url);
+
+            document.getElementById('deleteRecordForm').style.display = 'none';
+            document.getElementById('deleteChapterForm').style.display = 'block';
+
+            document.getElementById('deleteChapterId').value = selectedChapterId;
+
+            confirmDeleteModal.show();
+            chapterContextMenu.style.display = 'none';
+        });
+
+        function resetChapterForm() {
+            chapterModalId.value = '';
+            chapterTitle.value = '';
+        }
+
+        confirmDeleteModal._element.addEventListener('hidden.bs.modal', function () {
+            const url = new URL(window.location);
+            url.searchParams.delete('deleteChapterId');
+            window.history.pushState({}, '', url);
+
+            document.querySelector('#confirmDeleteModal .modal-body').textContent =
+                'Вы уверены, что хотите удалить эту запись?';
+            document.querySelector('#confirmDeleteModal form').setAttribute('action',
+                '/ctps/ctp/' + ctpId.value + '/delete');
         });
 
         editRecordItem.addEventListener('click', function() {
@@ -333,9 +464,9 @@
             recordIdInput.value = selectedRecordId;
             chapterIdInput.value = recordRow.getAttribute('data-chapter-id');
 
-            // Добавляем параметр updateId в URL
             const url = new URL(window.location);
             url.searchParams.set('updateId', selectedRecordId);
+            url.searchParams.set('chapterId', recordRow.getAttribute('data-chapter-id'));
             window.history.pushState({}, '', url);
 
             recordModalTitle.textContent = 'Редактировать занятие';
@@ -475,6 +606,11 @@
             recordIdInput.value = selectedRecordId;
             chapterIdInput.value = recordRow.getAttribute('data-chapter-id');
 
+            const url = new URL(window.location);
+            url.searchParams.set('updateId', selectedRecordId);
+            url.searchParams.set('chapterId', recordRow.getAttribute('data-chapter-id'));
+            window.history.pushState({}, '', url);
+
             recordForm.setAttribute('action', '/ctps/ctp/' + ctpId.value + '/update');
             recordForm.setAttribute('th:object', '${updateRecord}');
 
@@ -496,11 +632,6 @@
             recordContextMenu.style.display = 'none';
         });
 
-        editChapterItem.addEventListener('click', function() {
-            alert(`Редактирование раздела с ID: ${selectedChapterId}`);
-            chapterContextMenu.style.display = 'none';
-        });
-
         deleteChapterItem.addEventListener('click', function() {
             confirmDeleteModal.show();
             chapterContextMenu.style.display = 'none';
@@ -508,6 +639,10 @@
 
         addRecordToChapterItem.addEventListener('click', function() {
             chapterIdInput.value = selectedChapterId;
+
+            const url = new URL(window.location);
+            url.searchParams.set('chapterId', selectedChapterId);
+            window.history.pushState({}, '', url);
 
             resetRecordForm();
 
@@ -519,7 +654,6 @@
         });
 
         confirmDeleteModal._element.addEventListener('hidden.bs.modal', function () {
-            // Удаляем параметр deleteId из URL после закрытия модального окна
             const url = new URL(window.location);
             url.searchParams.delete('deleteId');
             window.history.pushState({}, '', url);
@@ -528,10 +662,21 @@
         recordModal._element.addEventListener('hidden.bs.modal', function () {
             const url = new URL(window.location);
             url.searchParams.delete('updateId');
+            url.searchParams.delete('chapterId');
             window.history.pushState({}, '', url);
 
             recordForm.setAttribute('action', '/ctps/ctp/' + ctpId.value + '/save');
             recordForm.setAttribute('th:object', '${newRecord}');
+        });
+
+        chapterModal._element.addEventListener('hidden.bs.modal', function () {
+            const url = new URL(window.location);
+            url.searchParams.delete('updateChapterId');
+            window.history.pushState({}, '', url);
+
+            chapterForm.setAttribute('action', '/ctps/ctp/' + ctpId.value + '/saveChapter');
+            chapterForm.setAttribute('th:object', 'newChapter');
+            
         });
     });
 </script>

@@ -94,6 +94,21 @@ public class CTPController {
         return "admin/entities/ctps/ctp";
     }
     
+    @GetMapping("/ctp/{id}/edit")
+    public String editCTP(@PathVariable Long id, Model model, @ModelAttribute("updateCtp") CTP ctp) {
+        model.addAttribute("ctp", ctpService.findById(id));
+        model.addAttribute("periods", periodService.findAll());
+        model.addAttribute("disciplines", disciplineService.findAll());
+        model.addAttribute("committees", committeeService.findAll());
+        model.addAttribute("specialities", specialityService.findAll());
+        return "admin/entities/ctps/editCtp";
+    }
     
+    @PostMapping("/ctp/{id}/updateCtp")
+    public String updateCTP(@PathVariable Long id, CTP ctp) {
+        ctp.setId(id);
+        ctpService.update(ctp);
+        return "redirect:/ctps/ctp/" + id;
+    }
     
 }
