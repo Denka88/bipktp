@@ -111,4 +111,10 @@ public class CTPController {
         return "redirect:/ctps/ctp/" + id;
     }
     
+    @PostMapping("/delete")
+    public String deleteCTP(@RequestParam Long deleteId) {
+        ctpService.deleteById(deleteId);
+        return "redirect:/ctps";
+    }
+    
 }

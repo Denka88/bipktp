@@ -2,10 +2,14 @@ package com.denka88.bipktp.impl;
 
 import com.denka88.bipktp.dto.CTPDto;
 import com.denka88.bipktp.model.CTP;
+import com.denka88.bipktp.model.Chapter;
 import com.denka88.bipktp.model.User;
 import com.denka88.bipktp.repo.CTPRepo;
+import com.denka88.bipktp.repo.ChapterRepo;
+import com.denka88.bipktp.repo.RecordRepo;
 import com.denka88.bipktp.repo.UserRepo;
 import com.denka88.bipktp.service.CTPService;
+import com.denka88.bipktp.service.ChapterService;
 import com.denka88.bipktp.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -25,7 +29,8 @@ public class CTPServiceImpl implements CTPService {
     
     private final CTPRepo ctpRepo;
     private final UserService userService;
-    private final UserRepo userRepo;
+    private final ChapterRepo chapterRepo;
+    private final RecordRepo recordRepo;
     
     @Override
     public List<CTP> findAll() {
@@ -63,6 +68,18 @@ public class CTPServiceImpl implements CTPService {
 
     @Override
     public void deleteById(Long id) {
+        CTP ctp = ctpRepo.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("КТП не найден"));
+
+        if(ctp.getChapters() != null){
+            for (Chapter chapter : ctp.getChapters()) {
+                if (chapter.getRecords() != null) {
+                    recordRepo.deleteAll(chapter.getRecords());
+                }
+            }
+            chapterRepo.deleteAll(ctp.getChapters());
+        }
+
         ctpRepo.deleteById(id);
     }
 
