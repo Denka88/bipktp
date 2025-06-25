@@ -17,5 +17,5 @@ public interface CTPService {
     void update(CTP ctp);
     
     Page<CTP> findPaginated(Pageable pageable);
-    
+    Page<CTP> findPaginatedByUserId(Pageable pageable, Long userId);
 }

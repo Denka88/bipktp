@@ -117,4 +117,24 @@ public class CTPServiceImpl implements CTPService {
         
         return new PageImpl<>(list, pageable, ctps.size());
     }
+
+    @Override
+    public Page<CTP> findPaginatedByUserId(Pageable pageable, Long userId) {
+        
+        final List<CTP> ctps = ctpRepo.findAllByUserId(userId);
+        
+        int pageSize = pageable.getPageSize();
+        int currentPage = pageable.getPageNumber();
+        int startItem = currentPage * pageSize;
+        List<CTP> list;
+        if(ctps.size() < startItem){
+            list = Collections.emptyList();
+        }
+        else{
+            int toIndex = Math.min(startItem + pageSize, ctps.size());
+            list = ctps.subList(startItem, toIndex);
+        }
+        
+        return new PageImpl<>(list, pageable, ctps.size());
+    }
 }

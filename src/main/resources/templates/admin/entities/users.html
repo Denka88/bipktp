@@ -1,29 +1,50 @@
-﻿<!doctype html>
+﻿<!DOCTYPE html>
 <html lang="ru" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${ctp.name}"></title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Управление пользователями</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.14.0-beta2/css/bootstrap-select.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.14.0-beta2/css/bootstrap-select.min.css" integrity="sha512-mR/b5Y7FRsKqrYZou7uysnOdCIJib/7r5QeJMFvLNHNhtye3xJp1TdJVPLtetkukFn227nKpXD9OjUc09lx97Q==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <link rel="stylesheet" href="/static/css/disciplinesStyleForUsers.css">
+
     <style>
-        .header-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
         }
         .table-container {
-            margin-top: 2rem;
+            height: 500px;
+            overflow-y: auto;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
         }
-        .add-btn-cell {
-            border: 2px dashed #ccc;
-            text-align: center;
+        .table tr {
             cursor: pointer;
         }
-        .add-btn-cell:hover {
+        .table tr:hover {
             background-color: #f8f9fa;
+        }
+        .table tr.active {
+            background-color: #e9ecef;
+        }
+        .form-container {
+            padding: 20px;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            height: 100%;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1100;
         }
         .context-menu {
             position: absolute;
@@ -42,180 +63,27 @@
         .context-menu-item:hover {
             background-color: #f8f9fa;
         }
-        .record-row:hover {
-            background-color: #f8f9fa;
-            cursor: pointer;
-        }
-        .modal-content {
-            border-radius: 10px;
-        }
-        .modal-header {
-            background-color: #f8f9fa;
-            border-bottom: 1px solid #dee2e6;
-        }
-        .modal-footer {
-            border-top: 1px solid #dee2e6;
-        }
-        .form-label {
-            font-weight: 500;
-        }
-        .bootstrap-select .dropdown-toggle {
-            border: 1px solid #ced4da;
-            background-color: white;
-        }
-        .bootstrap-select .dropdown-toggle:focus {
-            border-color: #86b7fe;
-            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
-        }
-        .record-row.active {
-            background-color: #e9ecef;
-        }
     </style>
 </head>
-<body class="bg-light">
-<div class="container py-4">
-    <div class="header-container">
-        <h2 th:text="${ctp.name}"></h2>
-        <button class="btn btn-sm btn-outline-secondary" id="editTitleBtn">
-            <i class="bi bi-pencil"></i> Изменить КТП
-        </button>
-    </div>
+<body>
+<div th:replace="~{/include/header}"></div>
+<div class="container-fluid">
 
-    <div class="table-container">
-        <table class="table table-bordered">
-            <thead class="table-light">
-            <tr>
-                <th style="width: 5%">№</th>
-                <th style="width: 25%">Тема</th>
-                <th style="width: 5%">Часы</th>
-                <th style="width: 15%">Оборудование</th>
-                <th style="width: 10%">Тип занятия</th>
-                <th style="width: 15%">Методы обучения</th>
-                <th style="width: 25%">Домашнее задание</th>
-            </tr>
-            </thead>
-            <tbody th:each="chapter : ${ctp.chapters}">
-            <tr>
-                <td colspan="7" class="table-primary">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <strong th:text="${chapter.title}"></strong>
-                        <button class="btn btn-sm btn-outline-primary add-record-btn"
-                                th:attr="data-chapter-id=${chapter.id}">
-                            <i class="bi bi-plus-lg"></i> Добавить занятие
-                        </button>
-                    </div>
-                </td>
-            </tr>
-            <tr th:each="record, recIter : ${chapter.records}" class="record-row"
-                th:attr="data-record-id=${record.id}, data-chapter-id=${chapter.id}">
-                <td th:text="${recIter.count}"></td>
-                <td th:text="${record.title}"></td>
-                <td th:text="${record.hours}"></td>
-                <td th:text="${record.equipment}"></td>
-                <td th:text="${record.lessonType.name}"></td>
-                <td>
-                    <span th:each="method, iter : ${record.teachMethods}" th:text="${method.name}">
-                        <span th:if="${!iter.last}">, </span>
-                    </span>
-                </td>
-                <td th:text="${record.homework}"></td>
-            </tr>
-            <tr>
-                <td colspan="7" class="add-btn-cell">
-                    <button class="btn btn-sm btn-outline-primary add-chapter-btn">
-                        <i class="bi bi-plus-lg"></i> Добавить раздел
-                    </button>
-                </td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
-
-    <div class="modal fade" id="recordModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="recordModalTitle">Добавить новое занятие</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <div class="toast-container">
+        <div id="successToast" class="toast align-items-center text-white bg-success" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    Пользователь сохранен
                 </div>
-                <div class="modal-body">
-                    <form id="recordForm" th:object="${newRecord}" method="post" th:action="@{/ctps/ctp/{id}/save(id=${ctp.id})}">
-                        <input type="hidden" id="recordId" name="id">
-                        <input type="hidden" id="ctpId" th:value="${ctp.id}">
-                        <input type="hidden" id="chapterId" name="chapterId">
-                        <input type="hidden" name="updateId" id="updateId" value="">
-
-                        <div class="row mb-3">
-                            <div class="col-md-8">
-                                <label for="recordTitle" class="form-label">Тема занятия</label>
-                                <input type="text" class="form-control" id="recordTitle" name="title" th:field="*{title}" required>
-                            </div>
-                            <div class="col-md-4">
-                                <label for="recordHours" class="form-label">Часы</label>
-                                <input type="number" class="form-control" id="recordHours" min="1" name="hours" th:field="*{hours}" required>
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="recordEquipment" class="form-label">Оборудование</label>
-                            <input type="text" class="form-control" id="recordEquipment" name="equipment" th:field="*{equipment}">
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="recordLessonType" class="form-label">Тип занятия</label>
-                            <select class="form-select" id="recordLessonType" th:field="*{lessonType}" name="lessonType" required>
-                                <option th:each="lessonType : ${lessonTypes}" th:value="${lessonType.id}" th:text="${lessonType.name}"></option>
-                            </select>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="teachMethodsSelect" class="form-label">Методы обучения</label>
-                            <select class="selectpicker" multiple data-live-search="true" data-style="btn-light"
-                                    data-width="100%" id="teachMethodsSelect" name="teachMethodsIds">
-                                <option th:each="method : ${teachMethods}"
-                                        th:value="${method.id}"
-                                        th:text="${method.name}"></option>
-                            </select>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="recordHomework" class="form-label">Домашнее задание</label>
-                            <textarea class="form-control" id="recordHomework" rows="3" maxlength="255" th:field="*{homework}"></textarea>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-                            <button type="submit" class="btn btn-primary" id="saveRecordBtn">Сохранить</button>
-                        </div>
-                    </form>
-                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
             </div>
         </div>
     </div>
 
-    <!-- Контекстное меню для записей -->
-    <div class="context-menu" id="recordContextMenu">
-        <div class="context-menu-item" id="editRecordItem">
-            <i class="bi bi-pencil"></i> Редактировать
-        </div>
-        <div class="context-menu-item" id="deleteRecordItem">
-            <i class="bi bi-trash"></i> Удалить
-        </div>
+    <div id="contextMenu" class="context-menu">
+        <div class="context-menu-item" id="deleteItem" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal">Удалить</div>
     </div>
 
-    <!-- Контекстное меню для разделов -->
-    <div class="context-menu" id="chapterContextMenu">
-        <div class="context-menu-item" id="editChapterItem">
-            <i class="bi bi-pencil"></i> Редактировать раздел
-        </div>
-        <div class="context-menu-item" id="deleteChapterItem">
-            <i class="bi bi-trash"></i> Удалить раздел
-        </div>
-        <div class="context-menu-item" id="addRecordToChapterItem">
-            <i class="bi bi-plus-lg"></i> Добавить занятие
-        </div>
-    </div>
-
-    <!-- Модальное окно подтверждения удаления -->
     <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -228,372 +96,308 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-                    <form method="post" th:action="@{/ctps/ctp/{id}/delete(id=${ctp.id})}">
-                        <input type="hidden" name="deleteId" id="deleteId" value="">
-                        <button type="submit" class="btn btn-danger">Удалить</button>
+                    <form method="post" th:action="@{/admin/entities/users/delete}">
+                        <input type="hidden" name="id" id="deleteId" value="">
+                        <button type="submit" class="btn btn-danger" data-bs-dismiss="modal" id="confirmDelete">Удалить</button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
+
+    <div class="header">
+        <h2>Управление пользователями</h2>
+    </div>
+
+    <div class="row">
+        <div class="col-md-7">
+            <div class="table-container">
+                <table class="table table-hover">
+                    <thead class="sticky-top bg-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Фамилия</th>
+                        <th>Имя</th>
+                        <th>Отчество</th>
+                        <th>Логин</th>
+                        <th>Роль</th>
+                        <th style="display: none;">Дисциплины</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="user : ${users}" th:data-id="${user.id}">
+                        <td th:text="${user.id}"></td>
+                        <td th:text="${user.surname}"></td>
+                        <td th:text="${user.name}"></td>
+                        <td th:text="${user.patronymic}"></td>
+                        <td th:text="${user.login}"></td>
+                        <td>
+                            <span th:text="${user.role.contains(T(com.denka88.bipktp.model.Role).ADMIN) ? 'Администратор' : 'Преподаватель'}"></span>
+                        </td>
+                        <td style="display:none;">
+                            <span th:each="discipline : ${user.disciplines}"
+                                  th:data-discipline-id="${discipline.id}"></span>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="col-md-5">
+            <div class="form-container">
+                <form id="entityForm" th:object="${newUser}" th:action="@{/admin/entities/users/save}" method="post">
+                    <input type="hidden" id="entityId" name="id">
+
+                    <div class="form-group">
+                        <label for="surname" class="form-label">Фамилия</label>
+                        <input type="text" class="form-control" th:field="*{surname}" id="surname" name="surname" required>
+
+                        <label for="name" class="form-label">Имя</label>
+                        <input type="text" class="form-control" th:field="*{name}" id="name" name="name" required>
+
+                        <label for="patronymic" class="form-label">Отчество</label>
+                        <input type="text" class="form-control" th:field="*{patronymic}" id="patronymic" name="patronymic">
+
+                        <label for="login" class="form-label">Логин</label>
+                        <input type="text" class="form-control" th:field="*{login}" id="login" name="login" required>
+
+                        <label for="password" class="form-label">Пароль</label>
+                        <input type="password" class="form-control" th:field="*{password}" id="password" name="password">
+
+                        <label for="disciplineIds" class="form-label">Дисциплины</label>
+                        <select class="selectpicker" multiple aria-label="Выбор дисциплин" data-live-search="true" data-style="btn-light" data-width="100%" id="disciplineIds" name="disciplineIds">
+                            <option th:each="discipline : ${disciplines}" th:value="${discipline.id}" th:text="${discipline.name}"></option>
+                        </select>
+
+
+                        <div class="form-check mt-3">
+                            <input class="form-check-input" type="checkbox" id="isAdmin" name="isAdmin">
+                            <label class="form-check-label" for="isAdmin">
+                                Администратор
+                            </label>
+                        </div>
+
+
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <button type="reset" class="btn btn-secondary me-md-2">
+                            <i class="bi bi-arrow-counterclockwise"></i> Сбросить
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save"></i> Сохранить
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.14.0-beta2/js/bootstrap-select.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.14.0-beta2/js/bootstrap-select.min.js" integrity="sha512-FHZVRMUW9FsXobt+ONiix6Z0tIkxvQfxtCSirkKc5Sb4TKHmqq1dZa8DphF0XqKb3ldLu/wgMa8mT6uXiLlRlw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Инициализация Bootstrap Select
+        const tableRows = document.querySelectorAll('tbody tr');
+
+        const form = document.getElementById('entityForm');
+        const entityId = document.getElementById('entityId');
+
+        const surnameInput = document.getElementById('surname');
+        const nameInput = document.getElementById('name');
+        const patronymicInput = document.getElementById('patronymic');
+        const loginInput = document.getElementById('login');
+        const isAdminCheckbox = document.getElementById('isAdmin');
+        const disciplineSelect = $('#disciplineIds');
+
+        const successToast = new bootstrap.Toast(document.getElementById('successToast'));
+
+        const contextMenu = document.getElementById('contextMenu');
+        const deleteItem = document.getElementById('deleteItem');
+
+        let selectedRowId = null;
+
         $('.selectpicker').selectpicker();
 
-        // Элементы контекстного меню для записей
-        const recordContextMenu = document.getElementById('recordContextMenu');
-        const editRecordItem = document.getElementById('editRecordItem');
-        const deleteRecordItem = document.getElementById('deleteRecordItem');
+        disciplineSelect.on('changed.bs.select', function(e, clickedIndex, isSelected, previousValue) {
+            const url = new URL(window.location.href);
+            const selectedDisciplines = disciplineSelect.val() || [];
 
-        // Элементы контекстного меню для разделов
-        const chapterContextMenu = document.getElementById('chapterContextMenu');
-        const editChapterItem = document.getElementById('editChapterItem');
-        const deleteChapterItem = document.getElementById('deleteChapterItem');
-        const addRecordToChapterItem = document.getElementById('addRecordToChapterItem');
-
-        // Модальное окно удаления
-        const confirmDeleteModal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
-        const deleteIdInput = document.getElementById('deleteId');
-
-        let selectedRecordId = null;
-        let selectedChapterId = null;
-
-        const recordModal = new bootstrap.Modal(document.getElementById('recordModal'));
-        const recordModalTitle = document.getElementById('recordModalTitle');
-        const saveRecordBtn = document.getElementById('saveRecordBtn');
-
-        const recordIdInput = document.getElementById('recordId');
-        const chapterIdInput = document.getElementById('chapterId');
-        const recordTitleInput = document.getElementById('recordTitle');
-        const recordHoursInput = document.getElementById('recordHours');
-        const recordEquipmentInput = document.getElementById('recordEquipment');
-        const recordLessonTypeSelect = document.getElementById('recordLessonType');
-        const teachMethodsSelect = $('#teachMethodsSelect');
-        const recordHomeworkTextarea = document.getElementById('recordHomework');
-
-        // Проверка параметра deleteId в URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const deleteIdFromUrl = urlParams.get('deleteId');
-        const updateIdFromUrl = urlParams.get('updateId');
-
-        const recordForm = document.getElementById('recordForm');
-        const ctpId = document.getElementById('ctpId');
-
-        if (deleteIdFromUrl) {
-            // Устанавливаем ID для удаления и показываем модальное окно
-            deleteIdInput.value = deleteIdFromUrl;
-            confirmDeleteModal.show();
-        }
-
-        if (updateIdFromUrl) {
-            // Находим строку с записью для редактирования
-            const recordRow = document.querySelector(`.record-row[data-record-id="${updateIdFromUrl}"]`);
-            if (recordRow) {
-                // Выделяем строку
-                document.querySelectorAll('.record-row').forEach(row => row.classList.remove('active'));
-                recordRow.classList.add('active');
-
-                // Заполняем форму данными из таблицы
-                fillRecordFormFromRow(recordRow);
-
-                // Устанавливаем ID записи и раздела
-                recordIdInput.value = updateIdFromUrl;
-                chapterIdInput.value = recordRow.getAttribute('data-chapter-id');
-
-                // Устанавливаем заголовок модального окна
-                recordModalTitle.textContent = 'Редактировать занятие';
-
-                recordForm.setAttribute('action', '/ctps/ctp/' + ctpId.value + '/update');
-                recordForm.setAttribute('th:object', '${updateRecord}');
-
-                // Показываем модальное окно
-                recordModal.show();
-            }
-        }
-
-        const addRecordButtons = document.querySelectorAll('.add-record-btn');
-        addRecordButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                // Устанавливаем ID раздела
-                const chapterId = this.getAttribute('data-chapter-id');
-                chapterIdInput.value = chapterId;
-
-                // Сбрасываем форму
-                resetRecordForm();
-
-                // Устанавливаем заголовок модального окна
-                recordModalTitle.textContent = 'Добавить новое занятие';
-
-                // Показываем модальное окно
-                recordModal.show();
+            url.searchParams.delete('disciplineIds');
+            selectedDisciplines.forEach(id => {
+                url.searchParams.append('disciplineIds', id);
             });
-        });
 
-        editRecordItem.addEventListener('click', function() {
-            if (!selectedRecordId) return;
-
-            document.getElementById('updateId').value = selectedRecordId;
-
-            // Находим строку таблицы с выбранной записью
-            const recordRow = document.querySelector(`.record-row[data-record-id="${selectedRecordId}"]`);
-            if (!recordRow) return;
-
-            // Заполняем форму данными из таблицы
-            fillRecordFormFromRow(recordRow);
-
-            // Устанавливаем ID записи и раздела
-            recordIdInput.value = selectedRecordId;
-            chapterIdInput.value = recordRow.getAttribute('data-chapter-id');
-
-            // Добавляем параметр updateId в URL
-            const url = new URL(window.location);
-            url.searchParams.set('updateId', selectedRecordId);
             window.history.pushState({}, '', url);
-
-            // Устанавливаем заголовок модального окна
-            recordModalTitle.textContent = 'Редактировать занятие';
-
-            // Показываем модальное окно
-            recordModal.show();
-
-            // Скрываем контекстное меню
-            recordContextMenu.style.display = 'none';
         });
 
-        saveRecordBtn.addEventListener('click', function() {
-            if (!validateRecordForm()) {
-                alert('Пожалуйста, заполните все обязательные поля');
-                return;
-            }
+        function updateUrlWithDisciplines() {
+            const selectedDisciplines = disciplineSelect.val() || [];
+            const url = new URL(window.location.href);
 
-            // Собираем данные формы
-            const recordData = {
-                id: recordIdInput.value || null,
-                chapterId: chapterIdInput.value,
-                title: recordTitleInput.value,
-                hours: recordHoursInput.value,
-                equipment: recordEquipmentInput.value,
-                lessonType: recordLessonTypeSelect.value,
-                homework: recordHomeworkTextarea.value,
-                teachMethodsIds: teachMethodsSelect.val() || []
-            };
+            url.searchParams.delete('disciplineIds');
 
-            console.log('Данные для сохранения:', recordData);
-
-            // Закрываем модальное окно
-            recordModal.hide();
-        });
-
-        function fillRecordFormFromRow(row) {
-            const cells = row.cells;
-
-            // Заполняем основные поля
-            recordTitleInput.value = cells[1].textContent;
-            recordHoursInput.value = cells[2].textContent;
-            recordEquipmentInput.value = cells[3].textContent;
-            recordHomeworkTextarea.value = cells[6].textContent;
-
-            // Устанавливаем тип занятия
-            const lessonTypeText = cells[4].textContent;
-            const lessonTypeOptions = recordLessonTypeSelect.options;
-            for (let i = 0; i < lessonTypeOptions.length; i++) {
-                if (lessonTypeOptions[i].textContent === lessonTypeText) {
-                    recordLessonTypeSelect.value = lessonTypeOptions[i].value;
-                    break;
-                }
-            }
-
-            // Устанавливаем методы обучения
-            const methodsText = cells[5].textContent;
-            const selectedMethods = [];
-            const methodOptions = teachMethodsSelect.find('option');
-
-            methodOptions.each(function() {
-                if (methodsText.includes(this.textContent)) {
-                    selectedMethods.push(this.value);
-                }
+            selectedDisciplines.forEach(id => {
+                url.searchParams.append('disciplineIds', id);
             });
 
-            teachMethodsSelect.selectpicker('val', selectedMethods);
-            teachMethodsSelect.selectpicker('refresh');
-        }
-
-        function resetRecordForm() {
-            recordIdInput.value = '';
-            recordTitleInput.value = '';
-            recordHoursInput.value = '';
-            recordEquipmentInput.value = '';
-            recordLessonTypeSelect.value = '';
-            recordHomeworkTextarea.value = '';
-            teachMethodsSelect.selectpicker('val', []);
-            teachMethodsSelect.selectpicker('refresh');
-
-            // Удаляем параметр updateId из URL
-            const url = new URL(window.location);
-            url.searchParams.delete('updateId');
             window.history.pushState({}, '', url);
         }
 
-        function validateRecordForm() {
-            return recordTitleInput.value.trim() !== '' &&
-                recordHoursInput.value.trim() !== '' &&
-                recordLessonTypeSelect.value !== '';
+        isAdminCheckbox.addEventListener('change', function () {
+            const url = new URL(window.location.href);
+            url.searchParams.set('isAdmin', this.checked);
+            window.history.pushState({}, '', url);
+        });
+
+        function updateFormAction(id) {
+            if (id) {
+                form.action = '/admin/entities/users/update';
+                form.object = 'updateUser';
+            } else {
+                form.action = '/admin/entities/users/save';
+                form.object = 'newUser';
+            }
         }
 
-        // Обработчики для строк с записями
-        const recordRows = document.querySelectorAll('.record-row');
-        recordRows.forEach(row => {
+        tableRows.forEach(row => {
+            row.addEventListener('click', function() {
+                tableRows.forEach(r => r.classList.remove('active'));
+
+                this.classList.add('active');
+
+                const id = this.getAttribute('data-id');
+                const cells = this.cells;
+
+                entityId.value = id;
+                surnameInput.value = cells[1].textContent;
+                nameInput.value = cells[2].textContent;
+                patronymicInput.value = cells[3].textContent;
+                loginInput.value = cells[4].textContent;
+
+                const roleCell = cells[5].textContent.trim();
+                const isAdmin = roleCell === 'Администратор';
+                isAdminCheckbox.checked = isAdmin;
+
+                const disciplineSpans = this.querySelectorAll('td[style="display:none;"] span');
+                const selectedDisciplines = Array.from(disciplineSpans).map(span => span.getAttribute('data-discipline-id'));
+
+                $('#disciplineIds').selectpicker('val', selectedDisciplines);
+                $('#disciplineIds').selectpicker('refresh');
+
+                const url = new URL(window.location.href);
+                url.searchParams.set('id', id);
+                url.searchParams.set('isAdmin', isAdmin);
+
+                url.searchParams.delete('disciplineIds');
+                selectedDisciplines.forEach(discId => {
+                    url.searchParams.append('disciplineIds', discId);
+                });
+
+                window.history.pushState({}, '', url);
+
+                disciplineSelect.selectpicker('val', selectedDisciplines);
+                disciplineSelect.selectpicker('refresh');
+
+                updateFormAction(id);
+            });
+        });
+
+        tableRows.forEach(row => {
             row.addEventListener('contextmenu', function(e) {
                 e.preventDefault();
 
-                selectedRecordId = this.getAttribute('data-record-id');
-                selectedChapterId = this.getAttribute('data-chapter-id');
+                selectedRowId = this.getAttribute('data-id');
 
-                recordContextMenu.style.display = 'block';
-                chapterContextMenu.style.display = 'none';
-                recordContextMenu.style.left = `${e.pageX}px`;
-                recordContextMenu.style.top = `${e.pageY}px`;
-
-                return false;
-            });
-
-            row.addEventListener('click', function() {
-                // Удаляем активный класс у всех строк
-                document.querySelectorAll('.record-row').forEach(r => r.classList.remove('active'));
-
-                // Добавляем активный класс текущей строке
-                this.classList.add('active');
-
-                // Устанавливаем выбранный ID записи
-                selectedRecordId = this.getAttribute('data-record-id');
-                // Также устанавливаем chapterId для возможного редактирования
-                chapterIdInput.value = this.getAttribute('data-chapter-id');
-
-                // Заполняем форму данными из строки
-                fillRecordFormFromRow(this);
-            });
-        });
-
-        // Обработчики для заголовков разделов
-        const chapterHeaders = document.querySelectorAll('tbody > tr:first-child');
-        chapterHeaders.forEach(header => {
-            header.addEventListener('contextmenu', function(e) {
-                e.preventDefault();
-
-                selectedChapterId = this.querySelector('button').getAttribute('data-chapter-id');
-
-                chapterContextMenu.style.display = 'block';
-                recordContextMenu.style.display = 'none';
-                chapterContextMenu.style.left = `${e.pageX}px`;
-                chapterContextMenu.style.top = `${e.pageY}px`;
+                contextMenu.style.display = 'block';
+                contextMenu.style.left = `${e.pageX}px`;
+                contextMenu.style.top = `${e.pageY}px`;
 
                 return false;
             });
         });
 
-        // Закрытие контекстного меню при клике вне его
         document.addEventListener('click', function() {
-            recordContextMenu.style.display = 'none';
-            chapterContextMenu.style.display = 'none';
+            contextMenu.style.display = 'none';
         });
 
-        // Обработчики пунктов меню для записей
-        editRecordItem.addEventListener('click', function() {
-            recordContextMenu.style.display = 'none';
-        });
+        deleteItem.addEventListener('click', function() {
+            document.getElementById('deleteId').value = selectedRowId;
 
-        editRecordItem.addEventListener('click', function() {
-            if (!selectedRecordId) return;
-
-            // Находим строку таблицы с выбранной записью
-            const recordRow = document.querySelector(`.record-row[data-record-id="${selectedRecordId}"]`);
-            if (!recordRow) return;
-
-            // Заполняем форму данными из таблицы
-            fillRecordFormFromRow(recordRow);
-
-            // Устанавливаем ID записи и раздела
-            recordIdInput.value = selectedRecordId;
-            chapterIdInput.value = recordRow.getAttribute('data-chapter-id');
-
-            // Устанавливаем правильный action для формы
-            recordForm.setAttribute('action', '/ctps/ctp/' + ctpId.value + '/update');
-            recordForm.setAttribute('th:object', '${updateRecord}');
-
-            // Устанавливаем заголовок модального окна
-            recordModalTitle.textContent = 'Редактировать занятие';
-
-            // Показываем модальное окно
-            recordModal.show();
-
-            // Скрываем контекстное меню
-            recordContextMenu.style.display = 'none';
-        });
-
-        deleteRecordItem.addEventListener('click', function() {
-            // Устанавливаем ID для удаления
-            deleteIdInput.value = selectedRecordId;
-
-            // Добавляем параметр deleteId в URL
-            const url = new URL(window.location);
-            url.searchParams.set('deleteId', selectedRecordId);
-            window.history.pushState({}, '', url);
-
-            confirmDeleteModal.show();
-            recordContextMenu.style.display = 'none';
-        });
-
-        // Обработчики пунктов меню для разделов
-        editChapterItem.addEventListener('click', function() {
-            alert(`Редактирование раздела с ID: ${selectedChapterId}`);
-            chapterContextMenu.style.display = 'none';
-        });
-
-        deleteChapterItem.addEventListener('click', function() {
-            confirmDeleteModal.show();
-            chapterContextMenu.style.display = 'none';
-        });
-
-        addRecordToChapterItem.addEventListener('click', function() {
-            // Устанавливаем ID раздела
-            chapterIdInput.value = selectedChapterId;
-
-            // Сбрасываем форму
-            resetRecordForm();
-
-            // Устанавливаем заголовок модального окна
-            recordModalTitle.textContent = 'Добавить новое занятие';
-
-            // Показываем модальное окно
-            recordModal.show();
-
-            chapterContextMenu.style.display = 'none';
-        });
-
-        // Обработчик закрытия модального окна удаления
-        confirmDeleteModal._element.addEventListener('hidden.bs.modal', function () {
-            // Удаляем параметр deleteId из URL после закрытия модального окна
-            const url = new URL(window.location);
-            url.searchParams.delete('deleteId');
+            const url = new URL(window.location.href);
+            url.searchParams.set('id', selectedRowId);
             window.history.pushState({}, '', url);
         });
 
-        // Обработчик закрытия модального окна редактирования
-        recordModal._element.addEventListener('hidden.bs.modal', function () {
-            // Удаляем параметр updateId из URL после закрытия модального окна
-            const url = new URL(window.location);
-            url.searchParams.delete('updateId');
+        form.addEventListener('reset', function() {
+            tableRows.forEach(r => r.classList.remove('active'));
+
+            const url = new URL(window.location.href);
+            url.searchParams.delete('id');
+            url.searchParams.delete('isAdmin');
+            url.searchParams.delete('disciplineIds');
             window.history.pushState({}, '', url);
 
-            // Возвращаем исходный action формы
-            recordForm.setAttribute('action', '/ctps/ctp/' + ctpId.value + '/save');
-            recordForm.setAttribute('th:object', '${newRecord}');
+            entityId.value = '';
+
+            disciplineSelect.selectpicker('val', '');
+            disciplineSelect.selectpicker('refresh');
+
+            updateFormAction(null);
+        });
+
+        function initializeFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const idFromUrl = urlParams.get('id');
+            const isAdminFromUrl = urlParams.get('isAdmin') === 'true';
+            const discIdsFromUrl = urlParams.getAll('disciplineIds');
+
+            if (idFromUrl) {
+                const rowToSelect = document.querySelector(`tr[data-id="${idFromUrl}"]`);
+                if (rowToSelect) {
+                    rowToSelect.click();
+                    isAdminCheckbox.checked = isAdminFromUrl;
+                }
+
+                if (discIdsFromUrl.length > 0) {
+                    $('#disciplineIds').selectpicker('val', discIdsFromUrl);
+                    $('#disciplineIds').selectpicker('refresh');
+                }
+            }
+        }
+
+        initializeFromUrl();
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(form);
+
+            const selectedDisciplines = $('#disciplineIds').val();
+            if (selectedDisciplines) {
+                selectedDisciplines.forEach(id => {
+                    formData.append('disciplineIds', id);
+                });
+            }
+
+            fetch(form.action, {
+                method: form.method,
+                body: new FormData(form)
+            })
+                .then(response => {
+                    if (response.ok) {
+                        successToast.show();
+
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1000);
+                    }
+                })
+                .catch(error => {
+                    console.error('Ошибка:', error);
+                });
         });
     });
 </script>

@@ -8,6 +8,8 @@ import com.denka88.bipktp.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -27,9 +29,9 @@ public class CTPController {
     private final DisciplineService disciplineService;
     private final SpecialityService specialityService;
     private final PeriodService periodService;
-    private final ChapterService chapterService;
     private final LessonTypeService lessonTypeService;
     private final TeachMethodService teachMethodService;
+    private final UserService userService;
     
     @ModelAttribute("newCTP")
     public CTPDto newCTP() {
@@ -49,12 +51,24 @@ public class CTPController {
     @GetMapping
     public String ctps(Model model,
                        @RequestParam("page") Optional<Integer> page,
-                       @RequestParam("size") Optional<Integer> size) {
+                       @RequestParam("size") Optional<Integer> size,
+                       @AuthenticationPrincipal User user) {
 
+        if (user != null){
+            model.addAttribute("user", userService.findByLogin(user.getUsername()));
+        }else{
+            model.addAttribute("user", null);
+        }
+        
         int currentPage = page.orElse(1);
         int pageSize = size.orElse(9);
 
-        Page<CTP> ctpPage = ctpService.findPaginated(PageRequest.of(currentPage - 1, pageSize));
+
+        assert user != null;
+        com.denka88.bipktp.model.User me = userService.findByLogin(user.getUsername()).orElse(null);
+
+        assert me != null;
+        Page<CTP> ctpPage = ctpService.findPaginatedByUserId(PageRequest.of(currentPage - 1, pageSize), me.getId());
 
         model.addAttribute("ctpPage", ctpPage);
         int totalPages = ctpPage.getTotalPages();
@@ -70,7 +84,14 @@ public class CTPController {
     }
     
     @GetMapping("/addCtp")
-    public String ctps(Model model) {
+    public String ctps(Model model, @AuthenticationPrincipal User user) {
+
+        if (user != null){
+            model.addAttribute("user", userService.findByLogin(user.getUsername()));
+        }else{
+            model.addAttribute("user", null);
+        }
+        
         model.addAttribute("periods", periodService.findAll());
         model.addAttribute("disciplines", disciplineService.findAll());
         model.addAttribute("committees", committeeService.findAll());
@@ -85,7 +106,13 @@ public class CTPController {
     }
 
     @GetMapping("/ctp/{id}")
-    public String viewCTP(@PathVariable Long id, Model model) {
+    public String viewCTP(@PathVariable Long id, Model model, @AuthenticationPrincipal User user) {
+        if (user != null){
+            model.addAttribute("user", userService.findByLogin(user.getUsername()));
+        }
+        else {
+            model.addAttribute("user", null);
+        }
         CTP ctp = ctpService.findById(id).orElseThrow(() -> new IllegalArgumentException("КТП не найден"));
         model.addAttribute("ctp", ctp);
         model.addAttribute("lessonTypes", lessonTypeService.findAll());
@@ -95,7 +122,13 @@ public class CTPController {
     }
     
     @GetMapping("/ctp/{id}/edit")
-    public String editCTP(@PathVariable Long id, Model model, @ModelAttribute("updateCtp") CTP ctp) {
+    public String editCTP(@PathVariable Long id, Model model, @ModelAttribute("updateCtp") CTP ctp, @AuthenticationPrincipal User user) {
+        if (user != null){
+            model.addAttribute("user", userService.findByLogin(user.getUsername()));
+        }
+        else {
+            model.addAttribute("user", null);
+        }
         model.addAttribute("ctp", ctpService.findById(id));
         model.addAttribute("periods", periodService.findAll());
         model.addAttribute("disciplines", disciplineService.findAll());

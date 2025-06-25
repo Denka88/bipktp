@@ -1,0 +1,31 @@
+﻿<nav class="navbar navbar-expand-lg navbar-dark bg-primary border-bottom" style="margin-top: -24px;" xmlns:sec="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+    <div class="container">
+        <a class="navbar-brand" href="/">КТП Планирование</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link" href="/ctps">Мои КТП</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/ctps/addCtp">Создать КТП</a>
+                </li>
+                <li class="nav-item" sec:authorize="hasRole('ADMIN')">
+                    <a class="nav-link" href="/admin/entities">Управление</a>
+                </li>
+            </ul>
+
+            <ul class="navbar-nav me-3" sec:authorize="isAuthenticated()">
+                <li class="nav-item">
+                    <a class="nav-link text-white disabled" th:text="${user.get().surname + ' ' + user.get().name + ' ' + user.get().patronymic}"></a>
+                </li>
+            </ul>
+
+            <form sec:authorize="isAuthenticated()" method="post" th:action="@{/logout}">
+                <button type="submit" class="btn btn-outline-light">Выйти</button>
+            </form>
+        </div>
+    </div>
+</nav>
