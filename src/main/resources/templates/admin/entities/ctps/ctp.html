@@ -79,6 +79,11 @@
 <div class="container py-4">
     <div class="header-container">
         <h2 th:text="${ctp.name}"></h2>
+        <button class="btn btn-sm btn-outline-secondary me-2">
+            <a th:href="@{/ctps/ctp/{id}/generate(id=${ctp.id})}">
+                <i class="bi bi-file-earmark-word"></i> Экспорт в Word
+            </a>
+        </button>
         <button class="btn btn-sm btn-outline-secondary" id="editTitleBtn">
             <a th:href="@{/ctps/ctp/{id}/edit(id=${ctp.id})}"><i class="bi bi-pencil"></i> Изменить КТП</a>
         </button>

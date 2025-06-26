@@ -8,12 +8,18 @@ import com.denka88.bipktp.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -32,6 +38,7 @@ public class CTPController {
     private final LessonTypeService lessonTypeService;
     private final TeachMethodService teachMethodService;
     private final UserService userService;
+    private final DocumentGenerationService documentGenerationService;
     
     @ModelAttribute("newCTP")
     public CTPDto newCTP() {
@@ -148,6 +155,30 @@ public class CTPController {
     public String deleteCTP(@RequestParam Long deleteId) {
         ctpService.deleteById(deleteId);
         return "redirect:/ctps";
+    }
+
+    @GetMapping("/ctp/{id}/generate")
+    public ResponseEntity<byte[]> generateDoc(@PathVariable Long id) {
+        byte[] document = documentGenerationService.generateCTPDocument(id);
+
+        String filename = "КТП_" + ctpService.findById(id).get().getName() + ".docx";
+
+        String encodedFilename;
+        try {
+            encodedFilename = URLEncoder.encode(filename, StandardCharsets.UTF_8)
+                    .replaceAll("\\+", "%20");
+        } catch (Exception e) {
+            encodedFilename = "document.docx";
+        }
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        headers.set(HttpHeaders.CONTENT_DISPOSITION,
+                "attachment; filename=\"" + encodedFilename + "\"; filename*=UTF-8''" + encodedFilename);
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(document);
     }
     
 }
