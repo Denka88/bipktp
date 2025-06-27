@@ -8,11 +8,12 @@ import com.denka88.bipktp.service.CTPService;
 import com.denka88.bipktp.service.DocumentGenerationService;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.xwpf.usermodel.*;
+import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlObject;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -31,14 +32,21 @@ public class DocumentGenerationServiceImpl implements DocumentGenerationService 
              XWPFDocument doc = new XWPFDocument(templateStream);
              ByteArrayOutputStream out = new ByteArrayOutputStream()) {
 
-            // 1. Подстановка текстовых плейсхолдеров
-            replaceAllPlaceholders(doc, Map.of(
-                    "${committee}", getSafe(ctp.getCommittee().getName()),
+            replacePlaceholdersSmart(doc, Map.of(
                     "${discipline}", getSafe(ctp.getDiscipline().getName()),
                     "${speciality}", getSafe(ctp.getSpeciality().getName()),
                     "${period}", ctp.getPeriod().getStart() + "–" + ctp.getPeriod().getEnd(),
                     "${user}", getTeacherInitials(ctp.getUser())
             ));
+
+            replacePlaceholdersInTextboxes(doc, Map.of(
+                    "${committee}", getSafe(ctp.getCommittee().getName())
+            ));
+
+            System.out.println(ctp.getCommittee().getName());
+            System.out.println(ctp.getDiscipline().getName());
+            System.out.println(ctp.getSpeciality().getName());
+            System.out.println(ctp.getPeriod().getStart() + "/" + ctp.getPeriod().getEnd());
 
             // 2. Вставка записей в таблицу
             insertRecordsIntoTable(doc, ctp.getChapters());
@@ -51,34 +59,57 @@ public class DocumentGenerationServiceImpl implements DocumentGenerationService 
         }
     }
 
-    private void replaceAllPlaceholders(XWPFDocument doc, Map<String, String> placeholders) {
+    private void replacePlaceholdersSmart(XWPFDocument doc, Map<String, String> placeholders) {
         for (XWPFParagraph paragraph : doc.getParagraphs()) {
-            replaceInParagraph(paragraph, placeholders);
+            processRuns(paragraph.getRuns(), placeholders);
+        }
+
+        for (IBodyElement element : doc.getBodyElements()) {
+            if (element instanceof XWPFParagraph paragraph) {
+                processRuns(paragraph.getRuns(), placeholders);
+            }
         }
 
         for (XWPFTable table : doc.getTables()) {
             for (XWPFTableRow row : table.getRows()) {
                 for (XWPFTableCell cell : row.getTableCells()) {
                     for (XWPFParagraph paragraph : cell.getParagraphs()) {
-                        replaceInParagraph(paragraph, placeholders);
+                        processRuns(paragraph.getRuns(), placeholders);
                     }
                 }
             }
         }
     }
 
-    private void replaceInParagraph(XWPFParagraph paragraph, Map<String, String> placeholders) {
-        for (XWPFRun run : paragraph.getRuns()) {
+    private void processRuns(List<XWPFRun> runs, Map<String, String> placeholders) {
+        if (runs == null || runs.isEmpty()) return;
+
+        // Собираем текст всего параграфа
+        StringBuilder fullText = new StringBuilder();
+        for (XWPFRun run : runs) {
             String text = run.getText(0);
-            if (text != null) {
-                for (Map.Entry<String, String> entry : placeholders.entrySet()) {
-                    text = text.replace(entry.getKey(), entry.getValue());
-                }
-                run.setText(text, 0);
+            if (text != null) fullText.append(text);
+        }
+
+        String replacedText = fullText.toString();
+        boolean hasReplacements = false;
+        for (Map.Entry<String, String> entry : placeholders.entrySet()) {
+            if (replacedText.contains(entry.getKey())) {
+                replacedText = replacedText.replace(entry.getKey(), entry.getValue());
+                hasReplacements = true;
+            }
+        }
+
+        // Только если что-то заменили — обновляем текст
+        if (hasReplacements) {
+            // Используем только первый run, остальные чистим
+            XWPFRun firstRun = runs.get(0);
+            firstRun.setText(replacedText, 0);
+            for (int i = 1; i < runs.size(); i++) {
+                runs.get(i).setText("", 0);
             }
         }
     }
-
     private void insertRecordsIntoTable(XWPFDocument doc, List<Chapter> chapters) {
         if (doc.getTables().size() < 3) return;
         XWPFTable table = doc.getTables().get(2); // 3-я таблица — содержательная часть
@@ -125,5 +156,53 @@ public class DocumentGenerationServiceImpl implements DocumentGenerationService 
 
     private String getSafe(String text) {
         return text != null ? text : "";
+    }
+
+    private void replacePlaceholdersInTextboxes(XWPFDocument doc, Map<String, String> placeholders) throws Exception {
+        XmlCursor cursor = doc.getDocument().newCursor();
+        cursor.selectPath("declare namespace w='http://schemas.openxmlformats.org/wordprocessingml/2006/main' .//w:txbxContent");
+
+        while (cursor.toNextSelection()) {
+            XmlObject txbxContent = cursor.getObject();
+
+            XmlCursor paragraphCursor = txbxContent.newCursor();
+            paragraphCursor.selectPath("declare namespace w='http://schemas.openxmlformats.org/wordprocessingml/2006/main' .//w:p");
+
+            while (paragraphCursor.toNextSelection()) {
+                XmlObject p = paragraphCursor.getObject();
+                XmlCursor tCursor = p.newCursor();
+                tCursor.selectPath("declare namespace w='http://schemas.openxmlformats.org/wordprocessingml/2006/main' .//w:t");
+
+                // 1. Собираем все тексты и курсоры
+                List<XmlCursor> cursors = new ArrayList<>();
+                StringBuilder combinedText = new StringBuilder();
+
+                while (tCursor.toNextSelection()) {
+                    XmlCursor current = tCursor.newCursor();
+                    cursors.add(current);
+                    combinedText.append(current.getTextValue());
+                }
+
+                // 2. Заменяем плейсхолдеры
+                String resultText = combinedText.toString();
+                for (Map.Entry<String, String> entry : placeholders.entrySet()) {
+                    resultText = resultText.replace(entry.getKey(), entry.getValue());
+                }
+
+                // 3. Перезаписываем только первый <w:t>, остальные очищаем
+                if (!cursors.isEmpty()) {
+                    cursors.get(0).setTextValue(resultText);
+                    for (int i = 1; i < cursors.size(); i++) {
+                        cursors.get(i).setTextValue("");
+                    }
+                }
+
+                tCursor.dispose();
+            }
+
+            paragraphCursor.dispose();
+        }
+
+        cursor.dispose();
     }
 }
