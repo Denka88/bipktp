@@ -29,12 +29,21 @@ public class DocumentGenerationServiceImpl implements DocumentGenerationService 
                 .orElseThrow(() -> new IllegalArgumentException("КТП не найдено"));
 
         try (InputStream templateStream = getClass().getResourceAsStream("/templates/template.docx");
-             XWPFDocument doc = new XWPFDocument(templateStream);
-             ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-
+            XWPFDocument doc = new XWPFDocument(templateStream);
+            ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            
+            String speciality;
+            
+            if(!ctp.getSpeciality().getQualification().isEmpty()){
+                speciality = ctp.getSpeciality().getName() + " Квалификация: " + ctp.getSpeciality().getQualification();
+            }
+            else {
+                speciality = ctp.getSpeciality().getName();
+            }
+            
             replacePlaceholdersSmart(doc, Map.of(
                     "${discipline}", getSafe(ctp.getDiscipline().getName()),
-                    "${speciality}", getSafe(ctp.getSpeciality().getName()),
+                    "${speciality}", getSafe(speciality),
                     "${period}", ctp.getPeriod().getStart() + "/" + ctp.getPeriod().getEnd(),
                     "${user}", getTeacherInitials(ctp.getUser())
             ));
@@ -108,20 +117,23 @@ public class DocumentGenerationServiceImpl implements DocumentGenerationService 
     }
     private void insertRecordsIntoTable(XWPFDocument doc, List<Chapter> chapters) {
         if (doc.getTables().size() < 3) return;
-        XWPFTable table = doc.getTables().get(2);
+        XWPFTable table2 = doc.getTables().get(2);
 
+        int summaryHours = 0;
         int number = 1;
         int chapterNumber = 1;
+        
         for (Chapter chapter : chapters) {
-            XWPFTableRow chapterRow = table.createRow();
-            chapterRow.getCell(0).setText("Раздел " + chapterNumber + ":     " + chapter.getTitle());
+            XWPFTableRow chapterRow = table2.createRow();
+            chapterRow.getCell(1).setText("Раздел " + chapterNumber + ": " + chapter.getTitle());
             chapterNumber++;
 
             for (Record record : chapter.getRecords()) {
-                XWPFTableRow row = table.createRow();
+                XWPFTableRow row = table2.createRow();
+                summaryHours += record.getHours();
                 row.getCell(0).setText(String.valueOf(number++));
                 row.getCell(1).setText(getSafe(record.getTitle()));
-                row.getCell(2).setText(String.valueOf(record.getHours()));
+                row.getCell(2).setText(record.getHours() + "-" + summaryHours);
                 row.getCell(3).setText(getSafe(record.getLessonType().getName()));
                 row.getCell(4).setText(record.getTeachMethods().stream()
                         .map(method -> getSafe(method.getName()))
@@ -130,6 +142,10 @@ public class DocumentGenerationServiceImpl implements DocumentGenerationService 
                 row.getCell(6).setText(getSafe(record.getHomework()));
             }
         }
+        XWPFTableRow summary = table2.createRow();
+        summary.getCell(0).setText("");
+        summary.getCell(1).setText("Всего");
+        summary.getCell(2).setText(String.valueOf(summaryHours));
     }
 
     private String getTeacherInitials(User user) {
@@ -156,7 +172,7 @@ public class DocumentGenerationServiceImpl implements DocumentGenerationService 
         return text != null ? text : "";
     }
 
-    private void replacePlaceholdersInTextboxes(XWPFDocument doc, Map<String, String> placeholders) throws Exception {
+    private void replacePlaceholdersInTextboxes(XWPFDocument doc, Map<String, String> placeholders) {
         XmlCursor cursor = doc.getDocument().newCursor();
         cursor.selectPath("declare namespace w='http://schemas.openxmlformats.org/wordprocessingml/2006/main' .//w:txbxContent");
 

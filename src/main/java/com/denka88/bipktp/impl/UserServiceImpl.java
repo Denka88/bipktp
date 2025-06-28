@@ -109,13 +109,9 @@ public class UserServiceImpl implements UserService {
         updatedUser.setName(user.getName());
         updatedUser.setPatronymic(user.getPatronymic());
         
-        System.out.println("UPDATE SERVICE: ");
-        System.out.println(disciplineIds);
-        updatedUser.setDisciplines(disciplineService.findAllById(disciplineIds));
-
-        System.out.println(updatedUser.getDisciplines());
-        
-        
+        if(!disciplineIds.isEmpty()){
+            updatedUser.setDisciplines(disciplineService.findAllById(disciplineIds));
+        }
         
         if(isAdmin) {
             updatedUser.setRole(new HashSet<>(Set.of(Role.ADMIN, Role.TEACHER)));

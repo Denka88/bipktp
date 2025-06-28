@@ -32,8 +32,7 @@ public class UserController {
     @PostMapping("/update")
     public String update(@ModelAttribute("updateUser") User user, @RequestParam Long id,
                          @RequestParam(value = "isAdmin", defaultValue = "false") boolean isAdmin,
-                         @RequestParam List<Long> disciplineIds) {
-        System.out.println("КОНТРОЛЛЕР: ");
+                         @RequestParam(required = false) List<Long> disciplineIds) {
         System.out.println(disciplineIds);
         user.setId(id);
         userService.update(user, isAdmin, disciplineIds);

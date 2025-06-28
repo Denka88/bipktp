@@ -79,14 +79,16 @@
 <div class="container py-4">
     <div class="header-container">
         <h2 th:text="${ctp.name}"></h2>
-        <button class="btn btn-sm btn-outline-secondary me-2">
-            <a th:href="@{/ctps/ctp/{id}/generate(id=${ctp.id})}">
-                <i class="bi bi-file-earmark-word"></i> Экспорт в Word
-            </a>
-        </button>
-        <button class="btn btn-sm btn-outline-secondary" id="editTitleBtn">
-            <a th:href="@{/ctps/ctp/{id}/edit(id=${ctp.id})}"><i class="bi bi-pencil"></i> Изменить КТП</a>
-        </button>
+        <div>
+            <button class="btn btn-sm btn-outline-secondary me-2">
+                <a th:href="@{/ctps/ctp/{id}/generate(id=${ctp.id})}">
+                    <i class="bi bi-file-earmark-word"></i> Экспорт в Word
+                </a>
+            </button>
+            <button class="btn btn-sm btn-outline-secondary" id="editTitleBtn">
+                <a th:href="@{/ctps/ctp/{id}/edit(id=${ctp.id})}"><i class="bi bi-pencil"></i> Изменить КТП</a>
+            </button>
+        </div>
     </div>
 
     <div class="table-container">
@@ -122,7 +124,7 @@
                 <td class="text-break" th:text="${record.equipment}"></td>
                 <td class="text-break" th:text="${record.lessonType.name}"></td>
                 <td class="text-break">
-                    <span th:each="method, iter : ${record.teachMethods}" th:text="${method.name}">
+                    <span th:each="method, iter : ${record.teachMethods}" th:text="${method.name + ' '}">
                         <span th:if="${!iter.last}">, </span>
                     </span>
                 </td>
