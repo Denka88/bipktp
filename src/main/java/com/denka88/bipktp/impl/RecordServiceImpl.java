@@ -41,12 +41,15 @@ public class RecordServiceImpl implements RecordService {
         record.setHours(recordDto.getHours());
         record.setEquipment(recordDto.getEquipment());
         record.setLessonType(recordDto.getLessonType());
+        
+        if(recordDto.getTeachMethodsIds() != null){
+            List<TeachMethod> teachMethods = teachMethodService.findAllByIds(recordDto.getTeachMethodsIds());
+            record.setTeachMethods(teachMethods);
+        }
 
-        List<TeachMethod> teachMethods = teachMethodService.findAllByIds(recordDto.getTeachMethodsIds());
-        record.setTeachMethods(teachMethods);
+        
         
         record.setChapter(chapterService.findById(recordDto.getChapterId()).orElse(null));
-        System.out.println("глава");
         recordRepo.save(record);
 
         System.out.println(record.getTitle());

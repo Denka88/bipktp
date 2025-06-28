@@ -65,9 +65,12 @@ public class UserServiceImpl implements UserService {
             user.setRole(Collections.singleton(Role.TEACHER));
         }
 
-        List<Discipline> disciplines = disciplineService.findAllById(userDto.getDisciplineIds());
+        if(userDto.getDisciplineIds() != null){
+            List<Discipline> disciplines = disciplineService.findAllById(userDto.getDisciplineIds());
+
+            user.setDisciplines(disciplines);
+        }
      
-        user.setDisciplines(disciplines);
         userRepo.save(user);
 
         

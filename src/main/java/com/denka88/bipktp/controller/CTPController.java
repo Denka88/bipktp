@@ -161,7 +161,7 @@ public class CTPController {
     public ResponseEntity<byte[]> generateDoc(@PathVariable Long id) {
         byte[] document = documentGenerationService.generateCTPDocument(id);
 
-        String filename = "КТП_" + ctpService.findById(id).get().getName() + ".docx";
+        String filename = ctpService.findById(id).get().getName() + ".docx";
 
         String encodedFilename;
         try {

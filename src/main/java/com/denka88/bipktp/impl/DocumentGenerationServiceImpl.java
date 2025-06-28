@@ -35,7 +35,7 @@ public class DocumentGenerationServiceImpl implements DocumentGenerationService 
             replacePlaceholdersSmart(doc, Map.of(
                     "${discipline}", getSafe(ctp.getDiscipline().getName()),
                     "${speciality}", getSafe(ctp.getSpeciality().getName()),
-                    "${period}", ctp.getPeriod().getStart() + "–" + ctp.getPeriod().getEnd(),
+                    "${period}", ctp.getPeriod().getStart() + "/" + ctp.getPeriod().getEnd(),
                     "${user}", getTeacherInitials(ctp.getUser())
             ));
 
@@ -48,7 +48,6 @@ public class DocumentGenerationServiceImpl implements DocumentGenerationService 
             System.out.println(ctp.getSpeciality().getName());
             System.out.println(ctp.getPeriod().getStart() + "/" + ctp.getPeriod().getEnd());
 
-            // 2. Вставка записей в таблицу
             insertRecordsIntoTable(doc, ctp.getChapters());
 
             doc.write(out);
@@ -84,7 +83,6 @@ public class DocumentGenerationServiceImpl implements DocumentGenerationService 
     private void processRuns(List<XWPFRun> runs, Map<String, String> placeholders) {
         if (runs == null || runs.isEmpty()) return;
 
-        // Собираем текст всего параграфа
         StringBuilder fullText = new StringBuilder();
         for (XWPFRun run : runs) {
             String text = run.getText(0);
@@ -100,9 +98,7 @@ public class DocumentGenerationServiceImpl implements DocumentGenerationService 
             }
         }
 
-        // Только если что-то заменили — обновляем текст
         if (hasReplacements) {
-            // Используем только первый run, остальные чистим
             XWPFRun firstRun = runs.get(0);
             firstRun.setText(replacedText, 0);
             for (int i = 1; i < runs.size(); i++) {
@@ -112,12 +108,14 @@ public class DocumentGenerationServiceImpl implements DocumentGenerationService 
     }
     private void insertRecordsIntoTable(XWPFDocument doc, List<Chapter> chapters) {
         if (doc.getTables().size() < 3) return;
-        XWPFTable table = doc.getTables().get(2); // 3-я таблица — содержательная часть
+        XWPFTable table = doc.getTables().get(2);
 
         int number = 1;
+        int chapterNumber = 1;
         for (Chapter chapter : chapters) {
             XWPFTableRow chapterRow = table.createRow();
-            chapterRow.getCell(0).setText("Раздел: " + chapter.getTitle());
+            chapterRow.getCell(0).setText("Раздел " + chapterNumber + ":     " + chapter.getTitle());
+            chapterNumber++;
 
             for (Record record : chapter.getRecords()) {
                 XWPFTableRow row = table.createRow();
@@ -173,7 +171,6 @@ public class DocumentGenerationServiceImpl implements DocumentGenerationService 
                 XmlCursor tCursor = p.newCursor();
                 tCursor.selectPath("declare namespace w='http://schemas.openxmlformats.org/wordprocessingml/2006/main' .//w:t");
 
-                // 1. Собираем все тексты и курсоры
                 List<XmlCursor> cursors = new ArrayList<>();
                 StringBuilder combinedText = new StringBuilder();
 
@@ -183,13 +180,11 @@ public class DocumentGenerationServiceImpl implements DocumentGenerationService 
                     combinedText.append(current.getTextValue());
                 }
 
-                // 2. Заменяем плейсхолдеры
                 String resultText = combinedText.toString();
                 for (Map.Entry<String, String> entry : placeholders.entrySet()) {
                     resultText = resultText.replace(entry.getKey(), entry.getValue());
                 }
 
-                // 3. Перезаписываем только первый <w:t>, остальные очищаем
                 if (!cursors.isEmpty()) {
                     cursors.get(0).setTextValue(resultText);
                     for (int i = 1; i < cursors.size(); i++) {
