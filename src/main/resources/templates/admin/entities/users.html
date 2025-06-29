@@ -163,7 +163,7 @@
                         <input type="text" class="form-control" th:field="*{login}" id="login" name="login" required>
 
                         <label for="password" class="form-label">Пароль</label>
-                        <input type="password" class="form-control" th:field="*{password}" id="password" name="password">
+                        <input type="password" class="form-control" th:field="*{password}" id="password" name="password" required>
 
                         <label for="disciplineIds" class="form-label">Дисциплины</label>
                         <select class="selectpicker" multiple aria-label="Выбор дисциплин" data-live-search="true" data-style="btn-light" data-width="100%" id="disciplineIds" name="disciplineIds">
@@ -211,6 +211,8 @@
         const loginInput = document.getElementById('login');
         const isAdminCheckbox = document.getElementById('isAdmin');
         const disciplineSelect = $('#disciplineIds');
+        
+        const passwordInput = document.getElementById('password');
 
         const successToast = new bootstrap.Toast(document.getElementById('successToast'));
 
@@ -233,19 +235,6 @@
             window.history.pushState({}, '', url);
         });
 
-        function updateUrlWithDisciplines() {
-            const selectedDisciplines = disciplineSelect.val() || [];
-            const url = new URL(window.location.href);
-
-            url.searchParams.delete('disciplineIds');
-
-            selectedDisciplines.forEach(id => {
-                url.searchParams.append('disciplineIds', id);
-            });
-
-            window.history.pushState({}, '', url);
-        }
-
         isAdminCheckbox.addEventListener('change', function () {
             const url = new URL(window.location.href);
             url.searchParams.set('isAdmin', this.checked);
@@ -256,9 +245,11 @@
             if (id) {
                 form.action = '/admin/entities/users/update';
                 form.object = 'updateUser';
+                passwordInput.removeAttribute('required');
             } else {
                 form.action = '/admin/entities/users/save';
                 form.object = 'newUser';
+                passwordInput.setAttribute('required', 'required');
             }
         }
 

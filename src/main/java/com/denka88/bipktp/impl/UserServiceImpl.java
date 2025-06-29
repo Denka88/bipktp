@@ -7,7 +7,6 @@ import com.denka88.bipktp.model.User;
 import com.denka88.bipktp.model.Role;
 import com.denka88.bipktp.repo.CTPRepo;
 import com.denka88.bipktp.repo.UserRepo;
-import com.denka88.bipktp.service.CTPService;
 import com.denka88.bipktp.service.DisciplineService;
 import com.denka88.bipktp.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -54,6 +53,9 @@ public class UserServiceImpl implements UserService {
     public User save(UserDto userDto) {
         User user = new User();
         user.setLogin(userDto.getLogin());
+        if(userDto.getPassword() == null) {
+            throw new IllegalArgumentException("Password cannot be null");
+        }
         user.setPassword(encoder.encode(userDto.getPassword()));
         user.setSurname(userDto.getSurname());
         user.setName(userDto.getName());
@@ -108,8 +110,8 @@ public class UserServiceImpl implements UserService {
         updatedUser.setSurname(user.getSurname());
         updatedUser.setName(user.getName());
         updatedUser.setPatronymic(user.getPatronymic());
-        
-        if(!disciplineIds.isEmpty()){
+
+        if(disciplineIds != null && !disciplineIds.isEmpty()){
             updatedUser.setDisciplines(disciplineService.findAllById(disciplineIds));
         }
         
