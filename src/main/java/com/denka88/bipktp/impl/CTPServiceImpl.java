@@ -16,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -97,7 +98,8 @@ public class CTPServiceImpl implements CTPService {
     @Override
     public Page<CTP> findPaginated(Pageable pageable) {
         
-        final List<CTP> ctps = ctpRepo.findAll();
+        final List<CTP> ctps = new ArrayList<>(ctpRepo.findAll());
+        Collections.reverse(ctps);
         
         int pageSize = pageable.getPageSize();
         int currentPage = pageable.getPageNumber();
@@ -118,7 +120,8 @@ public class CTPServiceImpl implements CTPService {
     @Override
     public Page<CTP> findPaginatedByUserId(Pageable pageable, Long userId) {
         
-        final List<CTP> ctps = ctpRepo.findAllByUserId(userId);
+        final List<CTP> ctps = new ArrayList<>(ctpRepo.findAllByUserId(userId));
+        Collections.reverse(ctps);
         
         int pageSize = pageable.getPageSize();
         int currentPage = pageable.getPageNumber();
